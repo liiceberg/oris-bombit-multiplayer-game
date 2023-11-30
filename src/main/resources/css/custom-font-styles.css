@@ -1,0 +1,10 @@
+@font-face {
+    font-family: 'PixelifySans bold';
+    src: local('PixelifySans bold'), url(../font/PixelifySans-Bold.ttf);
+}
+
+.title {
+    font-family: "PixelifySans bold", serif;
+    font-size: 48px;
+}
+
