@@ -10,10 +10,19 @@ public class Message implements Serializable {
     private String content;
     private String username;
 
-    public Message(MessageType messageType, String content, String username) {
+    public Message(MessageType messageType, String username) {
+        this.messageType = messageType;
+        this.username = username;
+    }
+
+    public Message(MessageType messageType, String username, String content) {
         this.messageType = messageType;
         this.content = content;
         this.username = username;
+    }
+
+    public Message(String content) {
+        this.content = content;
     }
 
     public MessageType getMessageType() {

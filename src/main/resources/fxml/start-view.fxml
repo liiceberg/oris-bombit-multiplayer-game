@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.kpfu.itis.oris.gimaletdinova.controller.StartController">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-    </padding>
+<AnchorPane prefHeight="525.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.kpfu.itis.oris.gimaletdinova.controller.StartController">
+    <Label fx:id="title" layoutX="352.0" layoutY="118.0" styleClass="title" stylesheets="@../css/custom-font-styles.css" text="BOMB IT" />
+    <Label layoutX="268.0" layoutY="248.0" prefHeight="30.0" prefWidth="84.0" text="Username:" />
+    <TextField fx:id="username" layoutX="352.0" layoutY="243.0" prefHeight="40.0" prefWidth="189.0" text="user" />
+    <Label fx:id="input_error" layoutX="282.0" layoutY="298.0" prefHeight="17.0" prefWidth="259.0" text="Username must be from 3 to 15 characters long" visible="false" />
+    <Button fx:id="create" layoutX="138.0" layoutY="355.0" onAction="#onCreateButtonClick" prefHeight="52.0" prefWidth="473.0" text="Create new room" />
+    <Button fx:id="join" layoutX="138.0" layoutY="424.0" onAction="#onJoinButtonClick" prefHeight="52.0" prefWidth="473.0" text="Join existing room" />
 
-    <Label fx:id="welcomeText" styleClass="title" stylesheets="@../css/custom-font-styles.css" text="BOMB IT" />
-
-    <TextField fx:id="username" />
-    <TextField fx:id="code" />
-
-    <Button fx:id="start" onAction="#onStartButtonClick" text="Start" />
-</VBox>
+</AnchorPane>

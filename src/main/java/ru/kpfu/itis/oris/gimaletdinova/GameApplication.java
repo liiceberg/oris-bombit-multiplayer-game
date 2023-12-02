@@ -6,22 +6,22 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import ru.kpfu.itis.oris.gimaletdinova.client.ClientPlayer;
-import ru.kpfu.itis.oris.gimaletdinova.model.Player;
+import ru.kpfu.itis.oris.gimaletdinova.model.Message;
+import ru.kpfu.itis.oris.gimaletdinova.model.MessageType;
+import ru.kpfu.itis.oris.gimaletdinova.model.User;
 import ru.kpfu.itis.oris.gimaletdinova.util.ControllerHelper;
 
 import java.io.IOException;
-import java.util.Objects;
-
 public class GameApplication extends Application {
     public static void main(String[] args) {
         launch();
     }
     private ClientPlayer clientPlayer;
-    private Player player;
+    private User user;
+    private String room;
 
     @Override
     public void start(Stage stage) throws IOException {
-        ClientPlayer clientPlayer = new ClientPlayer(this);
         ControllerHelper.setApplication(this);
 
         FXMLLoader fxmlLoader = new FXMLLoader(GameApplication.class.getResource("/fxml/start-view.fxml"));
@@ -38,4 +38,25 @@ public class GameApplication extends Application {
         return clientPlayer;
     }
 
+    public void initClientPlayer(String room) {
+        clientPlayer = new ClientPlayer(this, room);
+        Message message = new Message(MessageType.CONNECT, user.getUsername());
+        clientPlayer.send(message);
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public String getRoom() {
+        return room;
+    }
+
+    public void setRoom(String room) {
+        this.room = room;
+    }
 }

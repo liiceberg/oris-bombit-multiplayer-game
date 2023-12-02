@@ -15,9 +15,9 @@ public class Character extends Pane {
     private final int HEIGHT = 48;
     private final SpriteAnimation animation;
 
-    public Character(ImageView imageView) {
-        imageView.setFitWidth(35);
-        imageView.setFitHeight(35);
+    public Character(ImageView imageView, double size) {
+        imageView.setFitWidth(size);
+        imageView.setFitHeight(size);
         this.imageView = imageView;
         this.imageView.setViewport(new Rectangle2D(0, 0, WIDTH, HEIGHT));
         animation = new SpriteAnimation(imageView, Duration.millis(200), COUNT, COLUMNS, 0, 0, WIDTH, HEIGHT);

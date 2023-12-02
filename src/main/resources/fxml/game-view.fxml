@@ -1,47 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
 <AnchorPane fx:id="anchorPane" prefHeight="525.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.kpfu.itis.oris.gimaletdinova.controller.GameController">
+
+  <Label text="ROOM:" AnchorPane.leftAnchor="16" AnchorPane.topAnchor="16" />
+  <Label fx:id="code" AnchorPane.leftAnchor="64" AnchorPane.topAnchor="16" />
   <GridPane fx:id="gridPane" layoutX="155.0" prefHeight="525.0" prefWidth="595.0">
     <columnConstraints>
-      <ColumnConstraints hgrow="NEVER" prefWidth="100.0" halignment="CENTER"/>
-      <ColumnConstraints hgrow="NEVER" prefWidth="100.0" halignment="CENTER"/>
-      <ColumnConstraints hgrow="NEVER" prefWidth="100.0" halignment="CENTER" />
-      <ColumnConstraints hgrow="NEVER" prefWidth="100.0" halignment="CENTER" />
-      <ColumnConstraints hgrow="NEVER" prefWidth="100.0" halignment="CENTER" />
-      <ColumnConstraints hgrow="NEVER" prefWidth="100.0" halignment="CENTER" />
-      <ColumnConstraints hgrow="NEVER" prefWidth="100.0" halignment="CENTER" />
-      <ColumnConstraints hgrow="NEVER" prefWidth="100.0" halignment="CENTER" />
-      <ColumnConstraints hgrow="NEVER" prefWidth="100.0" halignment="CENTER" />
-      <ColumnConstraints hgrow="NEVER" prefWidth="100.0" halignment="CENTER" />
-      <ColumnConstraints hgrow="NEVER" prefWidth="100.0" halignment="CENTER" />
-      <ColumnConstraints hgrow="NEVER" prefWidth="100.0" halignment="CENTER" />
-      <ColumnConstraints hgrow="NEVER" prefWidth="100.0" halignment="CENTER" />
-      <ColumnConstraints hgrow="NEVER" prefWidth="100.0" halignment="CENTER" />
-      <ColumnConstraints hgrow="NEVER" prefWidth="100.0" halignment="CENTER" />
-      <ColumnConstraints hgrow="NEVER" prefWidth="100.0" halignment="CENTER" />
-      <ColumnConstraints hgrow="NEVER" prefWidth="100.0" halignment="CENTER" />
+      <ColumnConstraints halignment="CENTER" hgrow="NEVER" prefWidth="100.0" />
+      <ColumnConstraints halignment="CENTER" hgrow="NEVER" prefWidth="100.0" />
+      <ColumnConstraints halignment="CENTER" hgrow="NEVER" prefWidth="100.0" />
+      <ColumnConstraints halignment="CENTER" hgrow="NEVER" prefWidth="100.0" />
+      <ColumnConstraints halignment="CENTER" hgrow="NEVER" prefWidth="100.0" />
+      <ColumnConstraints halignment="CENTER" hgrow="NEVER" prefWidth="100.0" />
+      <ColumnConstraints halignment="CENTER" hgrow="NEVER" prefWidth="100.0" />
+      <ColumnConstraints halignment="CENTER" hgrow="NEVER" prefWidth="100.0" />
+      <ColumnConstraints halignment="CENTER" hgrow="NEVER" prefWidth="100.0" />
+      <ColumnConstraints halignment="CENTER" hgrow="NEVER" prefWidth="100.0" />
+      <ColumnConstraints halignment="CENTER" hgrow="NEVER" prefWidth="100.0" />
+      <ColumnConstraints halignment="CENTER" hgrow="NEVER" prefWidth="100.0" />
+      <ColumnConstraints halignment="CENTER" hgrow="NEVER" prefWidth="100.0" />
+      <ColumnConstraints halignment="CENTER" hgrow="NEVER" prefWidth="100.0" />
+      <ColumnConstraints halignment="CENTER" hgrow="NEVER" prefWidth="100.0" />
+      <ColumnConstraints halignment="CENTER" hgrow="NEVER" prefWidth="100.0" />
+      <ColumnConstraints halignment="CENTER" hgrow="NEVER" prefWidth="100.0" />
     </columnConstraints>
     <rowConstraints>
-      <RowConstraints prefHeight="100.0" vgrow="NEVER" valignment="CENTER"/>
-      <RowConstraints prefHeight="100.0" vgrow="NEVER" valignment="CENTER"/>
-      <RowConstraints prefHeight="100.0" vgrow="NEVER" valignment="CENTER"/>
-      <RowConstraints prefHeight="100.0" vgrow="NEVER" valignment="CENTER"/>
-      <RowConstraints prefHeight="100.0" vgrow="NEVER" valignment="CENTER"/>
-      <RowConstraints prefHeight="100.0" vgrow="NEVER" valignment="CENTER"/>
-      <RowConstraints prefHeight="100.0" vgrow="NEVER" valignment="CENTER"/>
-      <RowConstraints prefHeight="100.0" vgrow="NEVER" valignment="CENTER"/>
-      <RowConstraints prefHeight="100.0" vgrow="NEVER" valignment="CENTER"/>
-      <RowConstraints prefHeight="100.0" vgrow="NEVER" valignment="CENTER"/>
-      <RowConstraints prefHeight="100.0" vgrow="NEVER" valignment="CENTER"/>
-      <RowConstraints prefHeight="100.0" vgrow="NEVER" valignment="CENTER"/>
-      <RowConstraints prefHeight="100.0" vgrow="NEVER" valignment="CENTER"/>
-      <RowConstraints prefHeight="100.0" vgrow="NEVER" valignment="CENTER"/>
-      <RowConstraints prefHeight="100.0" vgrow="NEVER" valignment="CENTER"/>
+      <RowConstraints prefHeight="100.0" valignment="CENTER" vgrow="NEVER" />
+      <RowConstraints prefHeight="100.0" valignment="CENTER" vgrow="NEVER" />
+      <RowConstraints prefHeight="100.0" valignment="CENTER" vgrow="NEVER" />
+      <RowConstraints prefHeight="100.0" valignment="CENTER" vgrow="NEVER" />
+      <RowConstraints prefHeight="100.0" valignment="CENTER" vgrow="NEVER" />
+      <RowConstraints prefHeight="100.0" valignment="CENTER" vgrow="NEVER" />
+      <RowConstraints prefHeight="100.0" valignment="CENTER" vgrow="NEVER" />
+      <RowConstraints prefHeight="100.0" valignment="CENTER" vgrow="NEVER" />
+      <RowConstraints prefHeight="100.0" valignment="CENTER" vgrow="NEVER" />
+      <RowConstraints prefHeight="100.0" valignment="CENTER" vgrow="NEVER" />
+      <RowConstraints prefHeight="100.0" valignment="CENTER" vgrow="NEVER" />
+      <RowConstraints prefHeight="100.0" valignment="CENTER" vgrow="NEVER" />
+      <RowConstraints prefHeight="100.0" valignment="CENTER" vgrow="NEVER" />
+      <RowConstraints prefHeight="100.0" valignment="CENTER" vgrow="NEVER" />
+      <RowConstraints prefHeight="100.0" valignment="CENTER" vgrow="NEVER" />
     </rowConstraints>
   </GridPane>
-  <VBox prefHeight="525.0" prefWidth="155.0">
+  <VBox layoutY="46.0" prefHeight="479.0" prefWidth="155.0">
 
   </VBox>
+
 </AnchorPane>

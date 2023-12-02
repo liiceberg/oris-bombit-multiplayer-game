@@ -1,0 +1,56 @@
+package ru.kpfu.itis.oris.gimaletdinova.util;
+
+import ru.kpfu.itis.oris.gimaletdinova.dao.Dao;
+import ru.kpfu.itis.oris.gimaletdinova.server.GameServer;
+
+import java.sql.SQLException;
+import java.util.*;
+
+public class RoomRepository {
+    private static final Dao dao = new Dao();
+    private static final Random random = new Random();
+    private static final Map<String, Integer> rooms;
+
+    static {
+        try {
+            rooms = dao.getAll();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static int getPort(String room) {
+        return rooms.get(room);
+    }
+    public static String createRoom() {
+        GameServer server = new GameServer();
+        new Thread(server).start();
+        String code = generateCode();
+        rooms.put(code, server.getPort());
+        try {
+            dao.save(code, server.getPort());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        ControllerHelper.getApplication().setRoom(code);
+        return code;
+    }
+
+    private static String generateCode() {
+        StringBuilder builder;
+        String code;
+        do {
+            builder = new StringBuilder();
+            for (int i = 0; i < 6; i++) {
+                builder.append(getSymbol());
+            }
+            code = builder.toString();
+        } while (rooms.containsKey(code));
+        return code;
+    }
+
+    private static char getSymbol() {
+        return (char) random.nextInt('A', 'Z' + 1);
+    }
+
+}
