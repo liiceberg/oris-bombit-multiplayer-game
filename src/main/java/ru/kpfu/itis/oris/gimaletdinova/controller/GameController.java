@@ -11,7 +11,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
-import ru.kpfu.itis.oris.gimaletdinova.server.GameServer;
 import ru.kpfu.itis.oris.gimaletdinova.util.*;
 import ru.kpfu.itis.oris.gimaletdinova.view.Character;
 
@@ -36,11 +35,14 @@ public class GameController {
 
     @FXML
     public void initialize() {
+        Platform.runLater(this::initAll);
+    }
+    private void initAll() {
+        initRoom();
         initGameField();
+        initActions();
         initPlayAttributes();
         gridPane.getChildren().add(player);
-        Platform.runLater(this::initActions);
-        Platform.runLater(this::initRoom);
         AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long l) {
@@ -89,7 +91,9 @@ public class GameController {
     }
 
     private void initGameField() {
-        blocks = GameFieldRepository.getGameField();
+        String room = ControllerHelper.getApplication().getRoom();
+        System.out.println(room);
+        blocks = RoomRepository.getGameField(ControllerHelper.getApplication().getRoom());
         blockSize = gridPane.getPrefHeight() / gridPane.getRowCount();
         blockBuilder = new BlockBuilder(blockSize);
 

@@ -42,6 +42,7 @@ public class GameApplication extends Application {
         clientPlayer = new ClientPlayer(this, room);
         Message message = new Message(MessageType.CONNECT, user.getUsername());
         clientPlayer.send(message);
+        this.room = room;
     }
 
     public User getUser() {
