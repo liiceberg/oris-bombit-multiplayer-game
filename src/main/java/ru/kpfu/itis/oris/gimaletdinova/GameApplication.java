@@ -10,6 +10,7 @@ import ru.kpfu.itis.oris.gimaletdinova.model.Message;
 import ru.kpfu.itis.oris.gimaletdinova.model.MessageType;
 import ru.kpfu.itis.oris.gimaletdinova.model.User;
 import ru.kpfu.itis.oris.gimaletdinova.util.ControllerHelper;
+import ru.kpfu.itis.oris.gimaletdinova.util.MessageConverter;
 
 import java.io.IOException;
 public class GameApplication extends Application {
@@ -24,7 +25,7 @@ public class GameApplication extends Application {
     public void start(Stage stage) throws IOException {
         ControllerHelper.setApplication(this);
 
-        FXMLLoader fxmlLoader = new FXMLLoader(GameApplication.class.getResource("/fxml/start-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(GameApplication.class.getResource("/fxml/game-view-1.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 750, 525);
 
         stage.initStyle(StageStyle.UNDECORATED);
@@ -40,8 +41,9 @@ public class GameApplication extends Application {
 
     public void initClientPlayer(String room) {
         clientPlayer = new ClientPlayer(this, room);
-        Message message = new Message(MessageType.CONNECT, user.getUsername());
-        clientPlayer.send(message);
+        Message message = new Message(MessageType.CONNECT, user);
+        message = clientPlayer.send(message);
+        user.setNumber(MessageConverter.wrap(message.getContent()));
         this.room = room;
     }
 

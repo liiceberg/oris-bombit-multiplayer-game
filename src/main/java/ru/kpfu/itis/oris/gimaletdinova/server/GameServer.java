@@ -1,6 +1,8 @@
 package ru.kpfu.itis.oris.gimaletdinova.server;
 
 import ru.kpfu.itis.oris.gimaletdinova.model.Message;
+import ru.kpfu.itis.oris.gimaletdinova.model.MessageType;
+import ru.kpfu.itis.oris.gimaletdinova.model.User;
 import ru.kpfu.itis.oris.gimaletdinova.util.MessageConverter;
 
 import java.io.Closeable;
@@ -16,6 +18,7 @@ public class GameServer implements Closeable, Runnable {
     private final byte[] buffer = new byte[BUFFER_LENGTH];
     private final DatagramSocket socket;
     private final List<Client> players = new ArrayList<>();
+    public static final int PLAYERS_COUNT = 4;
     public GameServer() {
         try {
             socket = new DatagramSocket();
@@ -51,23 +54,32 @@ public class GameServer implements Closeable, Runnable {
 
     private Message parseMessage(byte[] data) throws IOException, ClassNotFoundException {
         Message message = MessageConverter.convertFromBytes(data);
+
         switch (message.getMessageType()) {
             case CONNECT -> {
-                int number = addPlayer();
-                return new Message(String.valueOf(number));
+                User user = message.getUser();
+                int number = addPlayer(user);
+                return new Message(MessageType.CONNECT, user, MessageConverter.convert(number));
+            }
+            case INIT_CHARACTER_IMG -> {
+                int number = MessageConverter.wrap(message.getContent());
+                for (Client client: players) {
+                    if (client.user.equals(message.getUser())) {
+                        client.user.setNumber(number);
+                        break;
+                    }
+                }
             }
         }
         System.out.print(message.getMessageType());
         System.out.print(" ");
-        System.out.print(message.getUsername());
-        System.out.print(" ");
-        System.out.println(message.getContent());
-        return new Message("");
+        System.out.print(message.getUser());
+        return null;
     }
 
-    private int addPlayer() {
-        if (players.size() <= 4) {
-            Client client = new Client(this);
+    private int addPlayer(User user) {
+        if (players.size() <= PLAYERS_COUNT) {
+            Client client = new Client(this, user);
             players.add(client);
             new Thread(client).start();
         }
@@ -78,6 +90,10 @@ public class GameServer implements Closeable, Runnable {
         return port;
     }
 
+    public int getPlayersCount() {
+        return players.size();
+    }
+
     @Override
     public void close() {
         socket.close();
@@ -85,14 +101,18 @@ public class GameServer implements Closeable, Runnable {
 
     static class Client implements Runnable {
         private final GameServer server;
+        private final User user;
+        private boolean isLose = false;
 
-        public Client(GameServer gameServer) {
+        public Client(GameServer gameServer, User user) {
             this.server = gameServer;
+            this.user = user;
+            user.setNumber(gameServer.getPlayersCount() + 1);
         }
 
         @Override
         public void run() {
-            System.out.println("Player added");
+            System.out.println("Player " + user + " added");
 
 //            try {
 //                while (true) {
@@ -103,6 +123,8 @@ public class GameServer implements Closeable, Runnable {
 //                throw new RuntimeException(e);
 //            }
         }
+
+
 
     }
 

@@ -11,27 +11,33 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
+import ru.kpfu.itis.oris.gimaletdinova.model.Message;
+import ru.kpfu.itis.oris.gimaletdinova.model.MessageType;
 import ru.kpfu.itis.oris.gimaletdinova.util.*;
 import ru.kpfu.itis.oris.gimaletdinova.view.Character;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class GameController {
     private boolean isPlayersReady = false;
     public Label code;
     private Character player;
+    private final List<Character> players = new ArrayList<>();
     private int height;
     private KeyCode keyCode;
     private Image bomb;
     private double blockSize;
     private Block[][] blocks;
     private BlockBuilder blockBuilder;
+    private AnimationTimer timer;
+
     @FXML
     private AnchorPane anchorPane;
 
     @FXML
     private GridPane gridPane;
-    private final CharacterFactory characterFactory = new CharacterFactory();
 
     @FXML
     public void initialize() {
@@ -43,13 +49,12 @@ public class GameController {
         initActions();
         initPlayAttributes();
         gridPane.getChildren().add(player);
-        AnimationTimer timer = new AnimationTimer() {
+        timer = new AnimationTimer() {
             @Override
             public void handle(long l) {
                 updatePlayer();
             }
         };
-        timer.start();
     }
 
     public void updatePlayer() {
@@ -91,8 +96,6 @@ public class GameController {
     }
 
     private void initGameField() {
-        String room = ControllerHelper.getApplication().getRoom();
-        System.out.println(room);
         blocks = RoomRepository.getGameField(ControllerHelper.getApplication().getRoom());
         blockSize = gridPane.getPrefHeight() / gridPane.getRowCount();
         blockBuilder = new BlockBuilder(blockSize);
@@ -106,10 +109,34 @@ public class GameController {
 
     private void initPlayAttributes() {
         bomb = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/tnt.png")));
-        player = new Character(characterFactory.create(), blockSize);
-        player.moveX((int) blockSize);
-        player.moveY((int) blockSize);
+        player = new Character(CharacterFactory.create(), blockSize);
+        setCharacterOffset();
         height = player.getHEIGHT();
+    }
+
+    private void setCharacterOffset() {
+        int number = ControllerHelper.getApplication().getUser().getNumber();
+        int x = 0, y = 0;
+        switch (number) {
+            case 1 -> {
+                x = (int) blockSize;
+                y = (int) blockSize;
+            }
+            case 2 -> {
+                x = (int) blockSize * (GameFieldRepository.WIDTH - 2);
+                y = (int) blockSize;
+            }
+            case 3 -> {
+                x = (int) blockSize * (GameFieldRepository.WIDTH - 2);
+                y = (int) blockSize * (GameFieldRepository.HEIGHT - 2);
+            }
+            case 4 -> {
+                x = (int) blockSize;
+                y = (int) blockSize * (GameFieldRepository.HEIGHT - 2);
+            }
+        }
+        player.moveX(x);
+        player.moveY(y);
     }
 
     private void initRoom() {
@@ -206,4 +233,22 @@ public class GameController {
         }
         return false;
     }
+
+    private void startGame() {
+        if (isPlayersReady) {
+            timer.start();
+        }
+    }
+
+    private void addPlayer() {
+        Character character =  new Character(CharacterFactory.create(), blockSize);
+        if (players.isEmpty()) {
+            player = character;
+        }
+        players.add(character);
+        int number = CharacterFactory.getNumber();
+        Message message = new Message(MessageType.INIT_CHARACTER_IMG, ControllerHelper.getApplication().getUser(), MessageConverter.convert(number));
+        ControllerHelper.getApplication().getClientPlayer().send(message);
+    }
+
 }

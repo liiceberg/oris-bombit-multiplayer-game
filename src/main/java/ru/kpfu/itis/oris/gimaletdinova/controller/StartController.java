@@ -45,10 +45,6 @@ public class StartController {
             Stage stage = (Stage) create.getScene().getWindow();
             ControllerHelper.loadAndShowFXML(createFxmlLoader, stage);
         }
-
-//        ControllerHelper.getApplication()
-//                .getClientPlayer()
-//                .send(new Message(MessageType.CREATE_NEW_ROOM, username.getText()));
     }
 
     private boolean validateUsername() {

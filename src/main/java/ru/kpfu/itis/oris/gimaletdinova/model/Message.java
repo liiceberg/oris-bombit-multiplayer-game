@@ -7,21 +7,23 @@ public class Message implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     private MessageType messageType;
-    private String content;
-    private String username;
+    private byte[] content;
+    private User user;
 
-    public Message(MessageType messageType, String username) {
+    public Message(MessageType messageType, User user) {
         this.messageType = messageType;
-        this.username = username;
+        this.user = user;
     }
 
-    public Message(MessageType messageType, String username, String content) {
+    public Message(MessageType messageType, User user, byte[] content) {
         this.messageType = messageType;
         this.content = content;
-        this.username = username;
+        this.user = user;
     }
 
-    public Message(String content) {
+
+
+    public Message(byte[] content) {
         this.content = content;
     }
 
@@ -33,19 +35,27 @@ public class Message implements Serializable {
         this.messageType = messageType;
     }
 
-    public String getContent() {
+    public byte[] getContent() {
         return content;
     }
 
-    public void setContent(String content) {
+    public void setContent(byte[] content) {
         this.content = content;
     }
 
-    public String getUsername() {
-        return username;
+    public User getUser() {
+        return user;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "messageType=" + messageType +
+                ", user=" + user +
+                '}';
     }
 }
