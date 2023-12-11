@@ -12,6 +12,7 @@
     <Label fx:id="welcomeText" styleClass="title" stylesheets="@../css/custom-font-styles.css" text="BOMB IT" />
 
     <TextField fx:id="code" />
+    <Label fx:id="error" text="Such room does not exist" visible="false"/>
 
     <Button fx:id="join" onAction="#onJoinButtonClick" text="Join" />
 </VBox>

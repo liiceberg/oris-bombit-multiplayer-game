@@ -3,33 +3,34 @@ package ru.kpfu.itis.oris.gimaletdinova.dao;
 import ru.kpfu.itis.oris.gimaletdinova.util.Block;
 import ru.kpfu.itis.oris.gimaletdinova.util.DatabaseConnection;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Dao {
     private final Connection connection = DatabaseConnection.getConnection();
-    private final String SELECT_SQL = "Select * from rooms;";
-    private final String SAVE_SQL = "insert into rooms(code, port, field) values(?, ?, ?);";
-    private final String DELETE_SQL = "delete from rooms where code=?;";
-    private final String GET_GAME_FIELD = "Select field from rooms where code=?;";
+    private final String SELECT_SQL = "select code, port, address from rooms;";
+    private final String SAVE_SQL = "insert into rooms(code, port, address, field) values(?, ?, ?, ?);";
+    private final String DELETE_SQL = "delete from rooms where port=?;";
+    private final String GET_GAME_FIELD = "select field from rooms where code=?;";
 
-    public Map<String, Integer> getAll() throws SQLException {
+    public Map<String, Object[]> getAll() throws SQLException {
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery(SELECT_SQL);
-        Map<String, Integer> map = new HashMap<>();
+        Map<String, Object[]> map = new HashMap<>();
             while (resultSet.next()) {
-                map.put(resultSet.getString(1), resultSet.getInt(2));
+                Object[] data = new Object[2];
+                data[0] = resultSet.getInt("port");
+                try {
+                    data[1] = InetAddress.getByName(resultSet.getString("address"));
+                } catch (UnknownHostException e) {
+                    throw new RuntimeException(e);
+                }
+                map.put(resultSet.getString("code"), data);
             }
         return map;
-    }
-
-    public static void main(String[] args) throws SQLException {
-        Block[][] b = new Dao().getField("KUZYYP");
-        for (Block[] blocks: b) {
-            for (Block bl: blocks) System.out.println(bl);
-        }
-
     }
 
     public Block[][] getField(String room) throws SQLException {
@@ -50,18 +51,19 @@ public class Dao {
         return field;
     }
 
-    public void save(String code, Integer port, Block[][] field) throws SQLException {
+    public void save(String code, Integer port, InetAddress address, Block[][] field) throws SQLException {
         Array array = connection.createArrayOf("varchar", field);
         PreparedStatement statement = connection.prepareStatement(SAVE_SQL);
         statement.setString(1, code);
         statement.setInt(2, port);
-        statement.setArray(3, array);
+        statement.setString(3, address.getHostAddress());
+        statement.setArray(4, array);
         statement.executeUpdate();
     }
 
-    public void delete(String code) throws SQLException {
+    public void delete(Integer port) throws SQLException {
         PreparedStatement statement = connection.prepareStatement(DELETE_SQL);
-        statement.setString(1, code);
+        statement.setInt(1, port);
         statement.executeUpdate();
     }
 

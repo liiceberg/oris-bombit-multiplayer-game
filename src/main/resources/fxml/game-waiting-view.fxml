@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="525.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.kpfu.itis.oris.gimaletdinova.controller.GameWaitingViewController">
+    <Label text="ROOM:" AnchorPane.leftAnchor="16" AnchorPane.topAnchor="16" />
+    <Label fx:id="code" AnchorPane.leftAnchor="64" AnchorPane.topAnchor="16" />
+    <Label layoutX="321.0" layoutY="253.0" text="Expecting all players" />
+
+</AnchorPane>

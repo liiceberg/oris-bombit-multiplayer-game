@@ -1,9 +1,9 @@
 @font-face {
     font-family: 'PixelifySans bold';
-    src: local('PixelifySans bold'), url("../font/PixelifySans-Bold.ttf");
+    src: url("../font/PixelifySans-Bold.ttf") format("ttf");
 }
 
 .title {
-    font-family: "PixelifySans bold", serif;
-    font-size: 48px;
+    -fx-font-family: "PixelifySans bold";
+    font-size: 120px;
 }

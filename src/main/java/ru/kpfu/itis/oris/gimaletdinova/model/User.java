@@ -1,6 +1,8 @@
 package ru.kpfu.itis.oris.gimaletdinova.model;
 
 import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 public class User implements Serializable {
     private String username;

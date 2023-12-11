@@ -11,8 +11,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
-import ru.kpfu.itis.oris.gimaletdinova.model.Message;
-import ru.kpfu.itis.oris.gimaletdinova.model.MessageType;
+
 import ru.kpfu.itis.oris.gimaletdinova.util.*;
 import ru.kpfu.itis.oris.gimaletdinova.view.Character;
 
@@ -21,7 +20,6 @@ import java.util.List;
 import java.util.Objects;
 
 public class GameController {
-    private boolean isPlayersReady = false;
     public Label code;
     private Character player;
     private final List<Character> players = new ArrayList<>();
@@ -55,6 +53,7 @@ public class GameController {
                 updatePlayer();
             }
         };
+        timer.start();
     }
 
     public void updatePlayer() {
@@ -109,7 +108,7 @@ public class GameController {
 
     private void initPlayAttributes() {
         bomb = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/tnt.png")));
-        player = new Character(CharacterFactory.create(), blockSize);
+        player = new Character(CharacterFactory.create(1), blockSize);
         setCharacterOffset();
         height = player.getHEIGHT();
     }
@@ -137,6 +136,7 @@ public class GameController {
         }
         player.moveX(x);
         player.moveY(y);
+//        players.add(number, player);
     }
 
     private void initRoom() {
@@ -164,7 +164,6 @@ public class GameController {
         view.setFitWidth(blockSize / 1.5);
         int column = getColumnIndex();
         int row = getRowIndex();
-        System.out.println(row + " " + column);
         System.out.println(player.getPlayerTranslateY() + " " + player.getPlayerTranslateX());
         System.out.println();
         gridPane.add(view, column, row);
@@ -194,8 +193,9 @@ public class GameController {
                 if (isObstacle) {
                     ImageView field = blockBuilder.getView(Block.FIELD);
                     gridPane.add(field, i, j);
-//              TODO all players
-                    player.toFront();
+                    for (Character c: players) {
+                        c.toFront();
+                    }
                 }
                 blocks[j][i] = Block.FIELD;
             });
@@ -234,21 +234,9 @@ public class GameController {
         return false;
     }
 
-    private void startGame() {
-        if (isPlayersReady) {
-            timer.start();
-        }
-    }
-
-    private void addPlayer() {
-        Character character =  new Character(CharacterFactory.create(), blockSize);
-        if (players.isEmpty()) {
-            player = character;
-        }
+    private void addPlayer(int number) {
+        Character character =  new Character(CharacterFactory.create(number), blockSize);
         players.add(character);
-        int number = CharacterFactory.getNumber();
-        Message message = new Message(MessageType.INIT_CHARACTER_IMG, ControllerHelper.getApplication().getUser(), MessageConverter.convert(number));
-        ControllerHelper.getApplication().getClientPlayer().send(message);
     }
 
 }

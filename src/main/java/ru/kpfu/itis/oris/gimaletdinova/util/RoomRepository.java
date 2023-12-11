@@ -3,13 +3,14 @@ package ru.kpfu.itis.oris.gimaletdinova.util;
 import ru.kpfu.itis.oris.gimaletdinova.dao.Dao;
 import ru.kpfu.itis.oris.gimaletdinova.server.GameServer;
 
+import java.net.InetAddress;
 import java.sql.SQLException;
 import java.util.*;
 
 public class RoomRepository {
     private static final Dao dao = new Dao();
     private static final Random random = new Random();
-    private static final Map<String, Integer> rooms;
+    private static final Map<String, Object[]> rooms;
 
     static {
         try {
@@ -19,9 +20,15 @@ public class RoomRepository {
         }
     }
 
-    public static int getPort(String room) {
-        return rooms.get(room);
+    public static Integer getPort(String room) {
+        return rooms.containsKey(room) ? (Integer) rooms.get(room)[0] : null;
     }
+
+    public static InetAddress getAddress(String room) {
+        return (InetAddress) rooms.get(room)[1];
+    }
+
+
     public static Block[][] getGameField(String room) {
         try {
             return dao.getField(room);
@@ -29,13 +36,14 @@ public class RoomRepository {
             throw new RuntimeException(e);
         }
     }
+
     public static String createRoom() {
         GameServer server = new GameServer();
         new Thread(server).start();
         String code = generateCode();
-        rooms.put(code, server.getPort());
+        rooms.put(code, new Object[]{server.getPort(), server.getAddress()});
         try {
-            dao.save(code, server.getPort(), GameFieldRepository.getGameField());
+            dao.save(code, server.getPort(), server.getAddress(), GameFieldRepository.getGameField());
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

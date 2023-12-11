@@ -6,13 +6,16 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import ru.kpfu.itis.oris.gimaletdinova.client.ClientPlayer;
-import ru.kpfu.itis.oris.gimaletdinova.model.Message;
-import ru.kpfu.itis.oris.gimaletdinova.model.MessageType;
+import ru.kpfu.itis.oris.gimaletdinova.controller.GameWaitingViewController;
+import ru.kpfu.itis.oris.gimaletdinova.exceptions.RoomNotFoundException;
+import ru.kpfu.itis.oris.gimaletdinova.model.message.*;
 import ru.kpfu.itis.oris.gimaletdinova.model.User;
 import ru.kpfu.itis.oris.gimaletdinova.util.ControllerHelper;
-import ru.kpfu.itis.oris.gimaletdinova.util.MessageConverter;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 public class GameApplication extends Application {
     public static void main(String[] args) {
         launch();
@@ -23,9 +26,16 @@ public class GameApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+        stage.setOnCloseRequest(e -> {
+            Map<String, Object> map = new HashMap<>();
+            DisconnectMessage message = new DisconnectMessage(map);
+            clientPlayer.send(message);
+            System.exit(0);
+        });
+
         ControllerHelper.setApplication(this);
 
-        FXMLLoader fxmlLoader = new FXMLLoader(GameApplication.class.getResource("/fxml/game-view-1.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(GameApplication.class.getResource("/fxml/start-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 750, 525);
 
         stage.initStyle(StageStyle.UNDECORATED);
@@ -39,12 +49,21 @@ public class GameApplication extends Application {
         return clientPlayer;
     }
 
-    public void initClientPlayer(String room) {
-        clientPlayer = new ClientPlayer(this, room);
-        Message message = new Message(MessageType.CONNECT, user);
-        message = clientPlayer.send(message);
-        user.setNumber(MessageConverter.wrap(message.getContent()));
+    public boolean initClientPlayer(String room) {
+        try {
+            clientPlayer = new ClientPlayer(this, room);
+        } catch (RoomNotFoundException e) {
+            return false;
+        }
+        Map<String, Object> map = new HashMap<>();
+        map.put("username", user.getUsername());
+        map.put("port", clientPlayer.getPort());
+        map.put("address", clientPlayer.getAddress());
+        Message message = new ConnectMessage(map);
+        clientPlayer.send(message);
+        user.setNumber(4);
         this.room = room;
+        return true;
     }
 
     public User getUser() {
@@ -59,7 +78,8 @@ public class GameApplication extends Application {
         return room;
     }
 
-    public void setRoom(String room) {
-        this.room = room;
+    public void startGame(String[] users, int[] characters) {
+        GameWaitingViewController.isPlayersReady = true;
     }
+
 }

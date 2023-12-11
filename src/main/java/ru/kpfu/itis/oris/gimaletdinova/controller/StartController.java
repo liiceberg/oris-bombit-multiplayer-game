@@ -26,7 +26,7 @@ public class StartController {
     private TextField username;
 
     private final FXMLLoader joinFxmlLoader = new FXMLLoader(JoinController.class.getResource("/fxml/join-view.fxml"));
-    private final FXMLLoader createFxmlLoader = new FXMLLoader(GameController.class.getResource("/fxml/game-view.fxml"));
+    private final FXMLLoader createFxmlLoader = new FXMLLoader(GameWaitingViewController.class.getResource("/fxml/game-waiting-view.fxml"));
 
     @FXML
     protected void onJoinButtonClick() throws IOException {
