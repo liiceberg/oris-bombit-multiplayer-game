@@ -1,8 +1,8 @@
 package ru.kpfu.itis.oris.gimaletdinova.server;
 
-import ru.kpfu.itis.oris.gimaletdinova.dao.Dao;
 import ru.kpfu.itis.oris.gimaletdinova.model.message.*;
 import ru.kpfu.itis.oris.gimaletdinova.util.CharacterFactory;
+import ru.kpfu.itis.oris.gimaletdinova.util.RoomRepository;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -20,7 +20,7 @@ public class GameServer implements Closeable, Runnable {
     private final byte[] buffer = new byte[BUFFER_LENGTH];
     private final DatagramSocket socket;
     private final List<Client> players = new ArrayList<>();
-    public static final int PLAYERS_COUNT = 2;
+    public static final int PLAYERS_COUNT = 1;
     private final InetAddress address;
 
     public GameServer() {
@@ -37,11 +37,9 @@ public class GameServer implements Closeable, Runnable {
     public void run() {
         try {
             while (true) {
-
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 socket.receive(packet);
                 parseMessage(packet.getData());
-
             }
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
@@ -51,20 +49,40 @@ public class GameServer implements Closeable, Runnable {
 
     private void parseMessage(byte[] data) throws IOException, ClassNotFoundException {
         if (data[0] == CONNECT.getValue()) {
-            addPlayer(new ConnectMessage(data));
+            ConnectMessage connectMessage = new ConnectMessage(data);
+            addPlayer(connectMessage);
         }
         if (data[0] == DISCONNECT.getValue()) {
             close();
+        }
+        if (data[0] == MOVE.getValue()) {
+            MoveMessage moveMessage = new MoveMessage(data);
+            for (int i = 0; i < players.size(); i++) {
+                if (moveMessage.getPlayerPosition() != i + 1) {
+                    sendMessage(moveMessage, players.get(i));
+                }
+            }
+        }
+        if (data[0] == ADD_BOMB.getValue()) {
+            AddBombMessage addBombMessage = new AddBombMessage(data);
+            for (int i = 0; i < players.size(); i++) {
+                if (addBombMessage.getPlayerPosition() != i + 1) {
+                    sendMessage(addBombMessage, players.get(i));
+                }
+            }
         }
     }
 
     private void addPlayer(ConnectMessage message) {
         if (players.size() + 1 <= PLAYERS_COUNT) {
-            Client client = new Client(this, message.getAddress(), message.getPort(), message.getUsername());
+            Client client = new Client(message.getAddress(), message.getPort(), message.getUsername());
             players.add(client);
-            new Thread(client).start();
+            Map<String, Object> map = new HashMap<>();
+            map.put("position", players.size());
+            ConnectResponseMessage responseMessage = new ConnectResponseMessage(map);
+            sendMessage(responseMessage, client);
             if (players.size() == PLAYERS_COUNT) {
-                Map<String, Object> map = new HashMap<>();
+                map = new HashMap<>();
                 String[] users = new String[PLAYERS_COUNT];
                 int[] characters = new int[PLAYERS_COUNT];
                 for (int i = 0; i < players.size(); i++) {
@@ -87,10 +105,6 @@ public class GameServer implements Closeable, Runnable {
         return address;
     }
 
-    public int getPlayersCount() {
-        return players.size();
-    }
-
     public void sendMessage(Message message, Client client) {
         try {
             byte[] data = message.getByteContent();
@@ -102,7 +116,7 @@ public class GameServer implements Closeable, Runnable {
     }
 
     public void sendAll(Message message) {
-        for (Client client: players) {
+        for (Client client : players) {
             sendMessage(message, client);
         }
     }
@@ -110,47 +124,25 @@ public class GameServer implements Closeable, Runnable {
     @Override
     public void close() {
         socket.close();
-//        TODO don't create new dao
-        Dao dao = new Dao();
         try {
-            dao.delete(port);
+            RoomRepository.dao.delete(port);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    static class Client implements Runnable {
-        private final GameServer server;
-        private InetAddress clientAddress;
-        private int clientPort;
-        private String username;
-        private int characterImg;
-        public Client(GameServer gameServer, InetAddress address, int port, String username) {
+    private static class Client {
+        private final InetAddress clientAddress;
+        private final int clientPort;
+        private final String username;
+        private final int characterImg;
+
+        public Client(InetAddress address, int port, String username) {
             clientAddress = address;
             clientPort = port;
-            server = gameServer;
             this.username = username;
             characterImg = CharacterFactory.getNumber();
         }
-
-        @Override
-        public void run() {
-            System.out.println("Player added");
-//            Message m = new ConnectMessage();
-//            server.sendMessage(m, this);
-//            System.out.println("message from server " + m);
-//            try {
-//                while (true) {
-//                    DatagramPacket packet = new DatagramPacket(server.buffer, server.buffer.length);
-//                    server.socket.receive(packet);
-//                    server.parseMessage(packet.getData());
-//                }
-//            } catch (IOException | ClassNotFoundException e) {
-//                throw new RuntimeException(e);
-//            }
-        }
-
-
     }
 
 }

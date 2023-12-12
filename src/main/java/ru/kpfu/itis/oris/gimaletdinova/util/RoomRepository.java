@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class RoomRepository {
-    private static final Dao dao = new Dao();
+    public static final Dao dao = new Dao();
     private static final Random random = new Random();
     private static final Map<String, Object[]> rooms;
 

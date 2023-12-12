@@ -8,7 +8,7 @@ import ru.kpfu.itis.oris.gimaletdinova.util.RoomRepository;
 import java.io.*;
 import java.net.*;
 
-import static ru.kpfu.itis.oris.gimaletdinova.model.message.MessageType.START_GAME;
+import static ru.kpfu.itis.oris.gimaletdinova.model.message.MessageType.*;
 import static ru.kpfu.itis.oris.gimaletdinova.server.GameServer.BUFFER_LENGTH;
 
 public class ClientPlayer implements Closeable {
@@ -46,10 +46,19 @@ public class ClientPlayer implements Closeable {
     }
 
     private void parseMessage(byte[] data) throws IOException, ClassNotFoundException {
+        if (data[0] == CONNECT.getValue()) {
+            ConnectResponseMessage message = new ConnectResponseMessage(data);
+            application.getUser().setPosition(message.getPosition());
+        }
         if (data[0] == START_GAME.getValue()) {
-            System.out.println("start game message accepted");
             GameStartMessage message = new GameStartMessage(data);
             application.startGame(message.getUsers(), message.getCharacters());
+        }
+        if (data[0] == MOVE.getValue()) {
+            MoveMessage moveMessage = new MoveMessage(data);
+        }
+        if (data[0] == ADD_BOMB.getValue()) {
+            AddBombMessage addBombMessage = new AddBombMessage(data);
         }
     }
 
@@ -67,12 +76,11 @@ public class ClientPlayer implements Closeable {
 
     @Override
     public void close() {
-//        TODO
         socket.close();
     }
 
-    static class ServerListener implements Runnable {
-        private ClientPlayer clientPlayer;
+    private static class ServerListener implements Runnable {
+        private final ClientPlayer clientPlayer;
 
         public ServerListener(ClientPlayer clientPlayer) {
             this.clientPlayer = clientPlayer;
@@ -91,8 +99,6 @@ public class ClientPlayer implements Closeable {
                 throw new RuntimeException(e);
             }
         }
-
-
     }
 
 }

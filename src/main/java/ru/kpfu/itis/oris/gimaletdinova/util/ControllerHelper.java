@@ -10,7 +10,8 @@ import java.io.IOException;
 public class ControllerHelper {
     private static GameApplication gameApplication;
     public static void loadAndShowFXML(FXMLLoader fxmlLoader, Stage stage) throws IOException {
-        stage.setScene(new Scene(fxmlLoader.load(), 750, 525));
+        Scene s = new Scene(fxmlLoader.load(), 750, 525);
+        stage.setScene(s);
         stage.show();
     }
 

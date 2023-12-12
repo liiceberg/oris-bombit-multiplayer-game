@@ -46,8 +46,9 @@ public class GameStartMessage extends Message {
             builder = new StringBuilder();
         }
         map.put("users", users.toArray());
-        while (buffer.hasRemaining()) {
-            characters.add(buffer.getInt());
+        int i;
+        while ((i = buffer.getInt()) != 0 && buffer.hasRemaining()) {
+            characters.add(i);
         }
         map.put("characters", characters.toArray());
         return map;

@@ -44,6 +44,7 @@ public class StartController {
             ControllerHelper.getApplication().initClientPlayer(room);
             Stage stage = (Stage) create.getScene().getWindow();
             ControllerHelper.loadAndShowFXML(createFxmlLoader, stage);
+
         }
     }
 

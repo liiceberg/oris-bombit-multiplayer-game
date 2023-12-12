@@ -23,6 +23,8 @@ public class GameApplication extends Application {
     private ClientPlayer clientPlayer;
     private User user;
     private String room;
+    private int[] characters;
+    private String[] users;
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -30,6 +32,7 @@ public class GameApplication extends Application {
             Map<String, Object> map = new HashMap<>();
             DisconnectMessage message = new DisconnectMessage(map);
             clientPlayer.send(message);
+            clientPlayer.close();
             System.exit(0);
         });
 
@@ -61,7 +64,6 @@ public class GameApplication extends Application {
         map.put("address", clientPlayer.getAddress());
         Message message = new ConnectMessage(map);
         clientPlayer.send(message);
-        user.setNumber(4);
         this.room = room;
         return true;
     }
@@ -79,7 +81,16 @@ public class GameApplication extends Application {
     }
 
     public void startGame(String[] users, int[] characters) {
+        this.characters = characters;
+        this.users = users;
         GameWaitingViewController.isPlayersReady = true;
     }
 
+    public int[] getCharacters() {
+        return characters;
+    }
+
+    public String[] getUsers() {
+        return users;
+    }
 }

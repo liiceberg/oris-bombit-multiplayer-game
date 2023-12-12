@@ -2,6 +2,7 @@ package ru.kpfu.itis.oris.gimaletdinova.controller;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import ru.kpfu.itis.oris.gimaletdinova.util.ControllerHelper;
@@ -13,16 +14,24 @@ public class GameWaitingViewController {
     public Label code;
     private final FXMLLoader fxmlLoader = new FXMLLoader(GameWaitingViewController.class.getResource("/fxml/game-view.fxml"));
     public static boolean isPlayersReady = false;
+    public Button start;
+
     @FXML
     public void initialize() throws IOException {
         code.setText(ControllerHelper.getApplication().getRoom());
-        while (true) {
-            if (isPlayersReady) {
-                Stage stage = (Stage) code.getScene().getWindow();
-                ControllerHelper.loadAndShowFXML(fxmlLoader,  stage);
-            }
-        }
+//        while (true) {
+//            if (isPlayersReady) {
+//                Stage stage = (Stage) code.getScene().getWindow();
+//                ControllerHelper.loadAndShowFXML(fxmlLoader,  stage);
+//            }
+//        }
     }
 
+
+    @FXML
+    protected void onStartButtonClick() throws IOException {
+        Stage stage = (Stage) code.getScene().getWindow();
+        ControllerHelper.loadAndShowFXML(fxmlLoader, stage);
+    }
 
 }
