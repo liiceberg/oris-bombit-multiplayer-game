@@ -3,6 +3,7 @@ package ru.kpfu.itis.oris.gimaletdinova;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import ru.kpfu.itis.oris.gimaletdinova.client.ClientPlayer;
@@ -25,9 +26,11 @@ public class GameApplication extends Application {
     private String room;
     private int[] characters;
     private String[] users;
+    public boolean isWin = true;
 
     @Override
     public void start(Stage stage) throws IOException {
+
         stage.setOnCloseRequest(e -> {
             Map<String, Object> map = new HashMap<>();
             DisconnectMessage message = new DisconnectMessage(map);
@@ -40,7 +43,7 @@ public class GameApplication extends Application {
 
         FXMLLoader fxmlLoader = new FXMLLoader(GameApplication.class.getResource("/fxml/start-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 750, 525);
-
+        Font.loadFont(GameApplication.class.getResource("/font/PixelifySans-Bold.ttf").toExternalForm(), 48);
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setTitle("BOMB IT");
         stage.setScene(scene);

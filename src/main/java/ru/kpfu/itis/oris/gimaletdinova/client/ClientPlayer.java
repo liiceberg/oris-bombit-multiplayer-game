@@ -7,6 +7,8 @@ import ru.kpfu.itis.oris.gimaletdinova.util.RoomRepository;
 
 import java.io.*;
 import java.net.*;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import static ru.kpfu.itis.oris.gimaletdinova.model.message.MessageType.*;
 import static ru.kpfu.itis.oris.gimaletdinova.server.GameServer.BUFFER_LENGTH;
@@ -17,6 +19,7 @@ public class ClientPlayer implements Closeable {
     private final byte[] buffer = new byte[BUFFER_LENGTH];
     private final InetAddress address;
     private final Integer port;
+    private final Queue<Message> serverMessages = new LinkedList<>();
 
     public ClientPlayer(GameApplication application, String room) throws RoomNotFoundException {
         this.application = application;
@@ -56,10 +59,20 @@ public class ClientPlayer implements Closeable {
         }
         if (data[0] == MOVE.getValue()) {
             MoveMessage moveMessage = new MoveMessage(data);
+            serverMessages.add(moveMessage);
         }
         if (data[0] == ADD_BOMB.getValue()) {
             AddBombMessage addBombMessage = new AddBombMessage(data);
+            serverMessages.add(addBombMessage);
         }
+        if (data[0] == LOSE.getValue()) {
+            LoseMessage loseMessage = new LoseMessage(data);
+            serverMessages.add(loseMessage);
+        }
+    }
+
+    public Queue<Message> getServerMessages() {
+        return serverMessages;
     }
 
     public int getPort() {
@@ -72,7 +85,6 @@ public class ClientPlayer implements Closeable {
             throw new RuntimeException(e);
         }
     }
-
 
     @Override
     public void close() {

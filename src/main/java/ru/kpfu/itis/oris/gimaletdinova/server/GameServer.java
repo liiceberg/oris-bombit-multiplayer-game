@@ -71,6 +71,14 @@ public class GameServer implements Closeable, Runnable {
                 }
             }
         }
+        if (data[0] == LOSE.getValue()) {
+            LoseMessage loseMessage = new LoseMessage(data);
+            for (int i = 0; i < players.size(); i++) {
+                if (loseMessage.getPlayerPosition() != i + 1) {
+                    sendMessage(loseMessage, players.get(i));
+                }
+            }
+        }
     }
 
     private void addPlayer(ConnectMessage message) {

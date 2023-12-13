@@ -9,17 +9,15 @@ import javafx.util.Duration;
 
 public class Character extends Pane {
     private final ImageView imageView;
-    private final int COUNT = 4;
-    private final int COLUMNS = 4;
-    private final int WIDTH = 48;
-    private final int HEIGHT = 48;
+    private static final int COUNT = 4;
+    private static final int COLUMNS = 4;
+    private static final int WIDTH = 48;
+    private static final int HEIGHT = 48;
     private final SpriteAnimation animation;
 
     public Character(ImageView imageView, double size) {
-        imageView.setFitWidth(size);
-        imageView.setFitHeight(size);
         this.imageView = imageView;
-        this.imageView.setViewport(new Rectangle2D(0, 0, WIDTH, HEIGHT));
+        setSettings(this.imageView, size);
         animation = new SpriteAnimation(imageView, Duration.millis(200), COUNT, COLUMNS, 0, 0, WIDTH, HEIGHT);
         getChildren().add(imageView);
     }
@@ -46,6 +44,12 @@ public class Character extends Pane {
         }
     }
 
+    public static void setSettings(ImageView imageView, double size) {
+        imageView.setFitWidth(size);
+        imageView.setFitHeight(size);
+        imageView.setViewport(new Rectangle2D(0, 0, WIDTH, HEIGHT));
+    }
+
     public SpriteAnimation getAnimation() {
         return animation;
     }
@@ -61,4 +65,7 @@ public class Character extends Pane {
         return getTranslateY();
     }
 
+    public ImageView getImageView() {
+        return imageView;
+    }
 }

@@ -15,6 +15,6 @@ public class DisconnectMessage extends Message {
 
     @Override
     public void setContent(Map<String, Object> map) {
-
+        content = new byte[0];
     }
 }

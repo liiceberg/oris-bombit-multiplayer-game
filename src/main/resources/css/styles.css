@@ -1,15 +1,40 @@
 @font-face {
-    font-family: 'PixelifySans bold';
+    font-family: 'PixelifySans-Bold';
     src: url("../font/PixelifySans-Bold.ttf") format("ttf");
 }
+@font-face {
+    font-family: 'PixelifySans-Medium';
+    src: url("../font/PixelifySans-Medium.ttf") format("ttf");
+}
 
-#title {
-    -fx-font-family: "PixelifySans bold";
-    font-size: 48px;
+.title {
+    -fx-font-size: 48px;
+    -fx-font-family: "Pixelify Sans Bold";
+    -fx-text-fill: grey;
+
+}
+
+.text {
+    -fx-font-family: "Pixelify Sans Medium";
+    -fx-font-size: 20px;
+    -fx-text-fill: grey;
+}
+
+.error-text {
+    -fx-font-size: 12px;
+    -fx-font-family: "Pixelify Sans Medium";
+    -fx-text-fill: red;
 }
 
 #background{
     -fx-background-image: url("../images/background.jpg");
+    -fx-background-repeat: stretch;
+    -fx-background-position: center center;
+    -fx-effect: dropshadow(three-pass-box, black, 30, 0.5, 0, 0);
+}
+
+#game-field{
+    -fx-background-image: url("../images/stone.jpeg");
     -fx-background-repeat: stretch;
     -fx-background-position: center center;
     -fx-effect: dropshadow(three-pass-box, black, 30, 0.5, 0, 0);

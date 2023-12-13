@@ -4,27 +4,37 @@ import javafx.animation.AnimationTimer;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import ru.kpfu.itis.oris.gimaletdinova.model.message.AddBombMessage;
+import ru.kpfu.itis.oris.gimaletdinova.model.message.LoseMessage;
+import ru.kpfu.itis.oris.gimaletdinova.model.message.Message;
 import ru.kpfu.itis.oris.gimaletdinova.model.message.MoveMessage;
 import ru.kpfu.itis.oris.gimaletdinova.util.*;
 import ru.kpfu.itis.oris.gimaletdinova.view.Character;
 
+import java.io.IOException;
 import java.util.*;
 
 public class GameController {
-
+    private final FXMLLoader fxmlLoader = new FXMLLoader(GameWaitingViewController.class.getResource("/fxml/game-over-view.fxml"));
+    @FXML
     public Label code;
+    @FXML
+    public VBox infoBox;
     private Character player;
     private int playerPosition;
-    private final List<Character> players = new ArrayList<>();
+    private final List<Character> characters = new ArrayList<>();
+    private final List<Player> players = new ArrayList<>();
     private int height;
     private KeyCode keyCode;
     private Image bomb;
@@ -37,17 +47,30 @@ public class GameController {
 
     @FXML
     private GridPane gridPane;
+    private int losersCount = 0;
 
     @FXML
     public void initialize() {
         Platform.runLater(this::initAll);
+        Platform.runLater(this::listen);
     }
+    private void listen() {
+//        new Thread(new ClientListener()).start();
+    }
+
     private void initAll() {
+        String[] users = ControllerHelper.getApplication().getUsers();
+        int[] characters = ControllerHelper.getApplication().getCharacters();
+        for (int i = 0; i < users.length; i++) {
+            Player p = new Player(i + 1, users[i], characters[i]);
+            players.add(p);
+        }
         initRoom();
         initGameField();
         initActions();
         initPlayers();
         initPlayAttributes();
+        initInfoTable();
         AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long l) {
@@ -59,7 +82,12 @@ public class GameController {
 
     public void updatePlayer() {
         if (blocks[getRowIndex()][getColumnIndex()] == Block.FIRE) {
-            System.out.println("DEAD");
+            removeCharacter(playerPosition);
+            Map<String, Object> map = new HashMap<>();
+            map.put("position", playerPosition);
+            LoseMessage loseMessage = new LoseMessage(map);
+            ControllerHelper.getApplication().getClientPlayer().send(loseMessage);
+            ControllerHelper.getApplication().isWin = false;
         }
         if (keyCode == null) {
             player.getAnimation().stop();
@@ -183,8 +211,9 @@ public class GameController {
         ImageView view = new ImageView(bomb);
         view.setFitHeight(blockSize / 1.5);
         view.setFitWidth(blockSize / 1.5);
-        System.out.println(player.getPlayerTranslateY() + " " + player.getPlayerTranslateX());
-        System.out.println();
+//        System.out.println(player.getPlayerTranslateY() + " " + player.getPlayerTranslateX());
+//        System.out.println();
+//        System.out.println("b " + player.getBoundsInLocal() + " " + player.getBoundsInParent());
         gridPane.add(view, x, y);
         PauseTransition pause = new PauseTransition(Duration.millis(3_000));
         pause.setOnFinished(event -> {
@@ -212,7 +241,7 @@ public class GameController {
                 if (isObstacle) {
                     ImageView field = blockBuilder.getView(Block.FIELD);
                     gridPane.add(field, i, j);
-                    for (Character c: players) {
+                    for (Character c : characters) {
                         c.toFront();
                     }
                 }
@@ -254,29 +283,88 @@ public class GameController {
     }
 
     private void addPlayer(int imgNumber, int position) {
-        Character character =  new Character(CharacterFactory.create(imgNumber), blockSize);
+        Character character = new Character(CharacterFactory.create(imgNumber), blockSize);
         setCharacterOffset(position, character);
-        players.add(character);
+        characters.add(character);
     }
+
     private void initPlayers() {
-        int[] characters = ControllerHelper.getApplication().getCharacters();
         playerPosition = ControllerHelper.getApplication().getUser().getPosition();
-        for (int i = 0; i < characters.length; i++) {
-            addPlayer(characters[i], i + 1);
-            if (i + 1 == playerPosition) {
-                player = players.get(i);
+        for (Player p: players) {
+            addPlayer(p.character, p.position);
+            if (p.position == playerPosition) {
+                player = characters.get(playerPosition - 1);
             }
         }
-        gridPane.getChildren().addAll(players);
+        gridPane.getChildren().addAll(this.characters);
+    }
+
+    private void initInfoTable() {
+        for (Player p: players) {
+            ImageView img = CharacterFactory.create(p.character);
+            Character.setSettings(img, blockSize);
+            Label divisor = new Label(" ");
+            infoBox.getChildren().addAll(p.title, p.username, img, divisor);
+        }
     }
 
     public void moveCharacter(int position, int direction) {
-        Character character = players.get(position);
+        Character character = characters.get(position);
     }
-    private static class ClientListener implements Runnable {
+    public void removeCharacter(int position) {
+        Player p = players.get(position - 1);
+        p.isLose = true;
+        p.title.setStyle("-fx-text-fill: red;");
+        p.username.setStyle("-fx-text-fill: red;");
+        gridPane.getChildren().remove(characters.get(p.position - 1));
+        if (++losersCount == players.size() - 1) {
+            gameOver();
+        }
+    }
+
+    private void gameOver() {
+        Stage stage = (Stage) code.getScene().getWindow();
+        try {
+            ControllerHelper.loadAndShowFXML(fxmlLoader, stage);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private class ClientListener implements Runnable {
         @Override
         public void run() {
+            while (true) {
+                Message m;
+                if ((m = ControllerHelper.getApplication().getClientPlayer().getServerMessages().poll()) != null) {
+                    System.out.println(m);
+                    switch (m.getMessageType()) {
+                        case MOVE -> moveCharacter(((MoveMessage) m).getPlayerPosition(), ((MoveMessage) m).getCode());
+                        case ADD_BOMB -> {
+                            int x = ((AddBombMessage) m).getX();
+                            int y = ((AddBombMessage) m).getY();
+                            System.out.println("evil bomb" + x + " " + y);
+                            addBomb(x, y);
+                        }
+                        case LOSE -> removeCharacter(((LoseMessage) m).getPlayerPosition());
+                    }
+                }
+            }
+        }
+    }
 
+    private static class Player {
+        public int position;
+        public int character;
+        public Label username;
+        public Label title;
+        public boolean isLose = false;
+
+        public Player(int position, String username, int character) {
+            this.position = position;
+            this.character = character;
+            this.title = new Label("Player " + position);
+            this.username = new Label(username);
         }
     }
 }

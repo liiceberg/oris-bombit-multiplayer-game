@@ -55,7 +55,7 @@ public class RoomRepository {
         String code;
         do {
             builder = new StringBuilder();
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < 2; i++) {
                 builder.append(getSymbol());
             }
             code = builder.toString();

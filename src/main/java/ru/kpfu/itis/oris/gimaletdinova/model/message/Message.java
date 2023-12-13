@@ -33,4 +33,9 @@ public abstract class Message {
 
     public abstract Map<String, Object> getContent();
     public abstract void setContent(Map<String, Object> map);
+
+    @Override
+    public String toString() {
+        return messageType.name();
+    }
 }

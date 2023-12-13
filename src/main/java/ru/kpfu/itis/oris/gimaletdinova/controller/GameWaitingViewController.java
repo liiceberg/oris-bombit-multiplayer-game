@@ -1,9 +1,10 @@
 package ru.kpfu.itis.oris.gimaletdinova.controller;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import ru.kpfu.itis.oris.gimaletdinova.util.ControllerHelper;
 
@@ -14,24 +15,35 @@ public class GameWaitingViewController {
     public Label code;
     private final FXMLLoader fxmlLoader = new FXMLLoader(GameWaitingViewController.class.getResource("/fxml/game-view.fxml"));
     public static boolean isPlayersReady = false;
-    public Button start;
+    @FXML
+    public VBox usersBox;
 
     @FXML
-    public void initialize() throws IOException {
+    public void initialize() {
         code.setText(ControllerHelper.getApplication().getRoom());
-//        while (true) {
-//            if (isPlayersReady) {
-//                Stage stage = (Stage) code.getScene().getWindow();
-//                ControllerHelper.loadAndShowFXML(fxmlLoader,  stage);
-//            }
-//        }
+        Platform.runLater(new Listener());
+
     }
 
-
-    @FXML
-    protected void onStartButtonClick() throws IOException {
+    private void start() {
         Stage stage = (Stage) code.getScene().getWindow();
-        ControllerHelper.loadAndShowFXML(fxmlLoader, stage);
+        try {
+            ControllerHelper.loadAndShowFXML(fxmlLoader,  stage);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private class Listener implements Runnable {
+        @Override
+        public void run() {
+            while (true) {
+                if (isPlayersReady) {
+                    start();
+                    break;
+                }
+            }
+        }
     }
 
 }
