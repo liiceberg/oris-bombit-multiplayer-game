@@ -34,9 +34,7 @@ public class GameApplication extends Application {
         primaryStage = stage;
 
         stage.setOnCloseRequest(e -> {
-            Map<String, Object> map = new HashMap<>();
-            map.put("position", user.getPosition());
-            DisconnectMessage message = new DisconnectMessage(map);
+            DisconnectMessage message = new DisconnectMessage(user.getPosition());
             clientPlayer.send(message);
             clientPlayer.close();
             System.exit(0);
@@ -63,11 +61,7 @@ public class GameApplication extends Application {
         } catch (RoomNotFoundException e) {
             return false;
         }
-        Map<String, Object> map = new HashMap<>();
-        map.put("username", user.getUsername());
-        map.put("port", clientPlayer.getPort());
-        map.put("address", clientPlayer.getAddress());
-        Message message = new ConnectMessage(map);
+        Message message = new ConnectMessage(user.getUsername(), clientPlayer.getPort(), clientPlayer.getAddress());
         clientPlayer.send(message);
         this.room = room;
         return true;

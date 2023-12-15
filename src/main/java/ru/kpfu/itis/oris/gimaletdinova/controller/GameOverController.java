@@ -55,9 +55,7 @@ public class GameOverController {
 
     public void onExitButtonClicked() {
         try {
-            Map<String, Object> map = new HashMap<>();
-            map.put("position", getApplication().getUser().getPosition());
-            DisconnectMessage message = new DisconnectMessage(map);
+            DisconnectMessage message = new DisconnectMessage(getApplication().getUser().getPosition());
             getApplication().getClientPlayer().send(message);
             getApplication().getClientPlayer().close();
             ControllerHelper.loadAndShowFXML(fxmlLoader);

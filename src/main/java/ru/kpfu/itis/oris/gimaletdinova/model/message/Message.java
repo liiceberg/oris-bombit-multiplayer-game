@@ -1,29 +1,25 @@
 package ru.kpfu.itis.oris.gimaletdinova.model.message;
 
 import java.nio.ByteBuffer;
-import java.util.Map;
 
 public abstract class Message {
     private MessageType messageType;
     protected byte[] content;
 
-    public Message(MessageType messageType, Map<String, Object> content) {
+    public Message(MessageType messageType) {
         this.messageType = messageType;
-        setContent(content);
     }
 
     public Message(MessageType messageType, byte[] content) {
         this.messageType = messageType;
         this.content = content;
+        getContent();
     }
 
     public MessageType getMessageType() {
         return messageType;
     }
 
-    public void setMessageType(MessageType messageType) {
-        this.messageType = messageType;
-    }
     public byte[] getByteContent() {
         ByteBuffer buffer = ByteBuffer.allocate(content.length + 1);
         buffer.put(messageType.getValue());
@@ -31,8 +27,8 @@ public abstract class Message {
         return buffer.array();
     }
 
-    public abstract Map<String, Object> getContent();
-    public abstract void setContent(Map<String, Object> map);
+    protected abstract void getContent();
+    protected abstract void setContent();
 
     @Override
     public String toString() {

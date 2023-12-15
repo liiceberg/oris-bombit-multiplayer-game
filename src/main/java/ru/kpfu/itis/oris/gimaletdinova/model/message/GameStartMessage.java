@@ -3,35 +3,24 @@ package ru.kpfu.itis.oris.gimaletdinova.model.message;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 public class GameStartMessage extends Message {
     private String[] users;
     private int[] characters;
 
-    public GameStartMessage(Map<String, Object> content) {
-        super(MessageType.START_GAME, content);
+    public GameStartMessage(String[] users, int[] characters) {
+        super(MessageType.START_GAME);
+        this.users = users;
+        this.characters = characters;
+        setContent();
     }
 
     public GameStartMessage(byte[] content) {
         super(MessageType.START_GAME, Arrays.copyOfRange(content, 1, content.length));
-        Map<String, Object> map = getContent();
-        Object[] o = (Object[]) map.get("users");
-        users = new String[o.length];
-        for (int i = 0; i < o.length; i++) {
-            users[i] = (String) o[i];
-        }
-        o = (Object[]) map.get("characters");
-        characters = new int[o.length];
-        for (int i = 0; i < o.length; i++) {
-            characters[i] = (int) o[i];
-        }
     }
 
     @Override
-    public Map<String, Object> getContent() {
-        Map<String, Object> map = new HashMap<>();
+    protected void getContent() {
         ByteBuffer buffer = ByteBuffer.wrap(content);
         ArrayList<String> users = new ArrayList<>();
         ArrayList<Integer> characters = new ArrayList<>();
@@ -45,19 +34,24 @@ public class GameStartMessage extends Message {
             users.add(builder.toString());
             builder = new StringBuilder();
         }
-        map.put("users", users.toArray());
+        this.users = new String[users.size()];
+        for (int i = 0; i < users.size(); i++) {
+            this.users[i] = users.get(i);
+        }
+
         int i;
         while ((i = buffer.getInt()) != 0 && buffer.hasRemaining()) {
             characters.add(i);
         }
-        map.put("characters", characters.toArray());
-        return map;
+
+        this.characters = new int[characters.size()];
+        for (i = 0; i < characters.size(); i++) {
+            this.characters[i] = characters.get(i);
+        }
     }
 
     @Override
-    public void setContent(Map<String, Object> map) {
-        users = (String[]) map.get("users");
-        characters = (int[]) map.get("characters");
+    protected void setContent() {
         int capacity = 0;
         for (String u: users) {
             capacity += u.length() + 1;

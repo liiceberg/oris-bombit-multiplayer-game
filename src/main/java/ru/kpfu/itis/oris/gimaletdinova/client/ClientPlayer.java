@@ -57,6 +57,10 @@ public class ClientPlayer implements Closeable {
             ConnectResponseMessage message = new ConnectResponseMessage(data);
             application.getUser().setPosition(message.getPosition());
         }
+        if (data[0] == JOIN_USER.getValue()) {
+            UserJoinMessage userJoinMessage = new UserJoinMessage(data);
+            System.out.println(userJoinMessage.getUsername());
+        }
         if (data[0] == START_GAME.getValue()) {
             GameStartMessage message = new GameStartMessage(data);
             application.startGame(message.getUsers(), message.getCharacters());

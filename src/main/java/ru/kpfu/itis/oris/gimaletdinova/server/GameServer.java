@@ -88,21 +88,18 @@ public class GameServer implements Closeable, Runnable {
         if (players.size() + 1 <= PLAYERS_COUNT) {
             Client client = new Client(message.getAddress(), message.getPort(), message.getUsername());
             players.add(client);
-            Map<String, Object> map = new HashMap<>();
-            map.put("position", players.size());
-            ConnectResponseMessage responseMessage = new ConnectResponseMessage(map);
+            ConnectResponseMessage responseMessage = new ConnectResponseMessage(players.size());
             sendMessage(responseMessage, client);
+            UserJoinMessage userJoinMessage = new UserJoinMessage(client.username, client.characterImg);
+            sendAll(userJoinMessage);
             if (players.size() == PLAYERS_COUNT) {
-                map = new HashMap<>();
                 String[] users = new String[PLAYERS_COUNT];
                 int[] characters = new int[PLAYERS_COUNT];
                 for (int i = 0; i < players.size(); i++) {
                     users[i] = players.get(i).username;
                     characters[i] = players.get(i).characterImg;
                 }
-                map.put("users", users);
-                map.put("characters", characters);
-                GameStartMessage gameStartMessage = new GameStartMessage(map);
+                GameStartMessage gameStartMessage = new GameStartMessage(users, characters);
                 sendAll(gameStartMessage);
             }
         }

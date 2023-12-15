@@ -79,9 +79,7 @@ public class GameController {
         if (blocks[getRowIndex()][getColumnIndex()] == Block.FIRE) {
             updateTimer.stop();
             removeCharacter(playerPosition);
-            Map<String, Object> map = new HashMap<>();
-            map.put("position", playerPosition);
-            LoseMessage loseMessage = new LoseMessage(map);
+            LoseMessage loseMessage = new LoseMessage(playerPosition);
             ControllerHelper.getApplication().getClientPlayer().send(loseMessage);
             ControllerHelper.getApplication().isWin = false;
             return;
@@ -127,19 +125,12 @@ public class GameController {
     }
 
     private void sendMoveMessage(Integer keyCode) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("code", keyCode);
-        map.put("position", playerPosition);
-        MoveMessage moveMessage = new MoveMessage(map);
+        MoveMessage moveMessage = new MoveMessage(keyCode, playerPosition);
         ControllerHelper.getApplication().getClientPlayer().send(moveMessage);
     }
 
     private void sendAddBombMessage(int x, int y) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("x", x);
-        map.put("y", y);
-        map.put("position", playerPosition);
-        AddBombMessage message = new AddBombMessage(map);
+        AddBombMessage message = new AddBombMessage(x, y, playerPosition);
         ControllerHelper.getApplication().getClientPlayer().send(message);
     }
 

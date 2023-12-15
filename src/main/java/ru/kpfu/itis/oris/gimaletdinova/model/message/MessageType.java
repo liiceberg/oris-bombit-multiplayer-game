@@ -6,7 +6,8 @@ public enum MessageType {
     ADD_BOMB((byte) 2),
     MOVE((byte) 3),
     LOSE((byte) 4),
-    DISCONNECT((byte) 5);
+    DISCONNECT((byte) 5),
+    JOIN_USER((byte) 6);
     private final byte value;
     MessageType(byte value) {
         this.value = value;

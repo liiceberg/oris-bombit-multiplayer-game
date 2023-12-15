@@ -2,40 +2,34 @@ package ru.kpfu.itis.oris.gimaletdinova.model.message;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 public class AddBombMessage extends Message {
     private int x;
     private int y;
     private int playerPosition;
-    public AddBombMessage(Map<String, Object> content) {
-        super(MessageType.ADD_BOMB, content);
+
+    public AddBombMessage(int x, int y, int playerPosition) {
+        super(MessageType.ADD_BOMB);
+        this.x = x;
+        this.y = y;
+        this.playerPosition = playerPosition;
+        setContent();
     }
 
     public AddBombMessage(byte[] content) {
         super(MessageType.ADD_BOMB, Arrays.copyOfRange(content, 1, content.length));
-        Map<String, Object> map = getContent();
-        x = (Integer) map.get("x");
-        y = (Integer) map.get("y");
-        playerPosition = (Integer) map.get("position");
     }
 
     @Override
-    public Map<String, Object> getContent() {
+    protected void getContent() {
         ByteBuffer buffer = ByteBuffer.wrap(content);
-        Map<String, Object> map = new HashMap<>();
-        map.put("x", buffer.getInt());
-        map.put("y", buffer.getInt());
-        map.put("position", buffer.getInt());
-        return map;
+        x = buffer.getInt();
+        y = buffer.getInt();
+        playerPosition = buffer.getInt();
     }
 
     @Override
-    public void setContent(Map<String, Object> map) {
-        x = (Integer) map.get("x");
-        y = (Integer) map.get("y");
-        playerPosition = (Integer) map.get("position");
+    protected void setContent() {
         ByteBuffer buffer = ByteBuffer.allocate(4 * 3);
         buffer.putInt(x);
         buffer.putInt(y);

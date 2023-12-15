@@ -2,32 +2,27 @@ package ru.kpfu.itis.oris.gimaletdinova.model.message;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 public class LoseMessage extends Message {
     private int position;
-    public LoseMessage(Map<String, Object> content) {
-        super(MessageType.LOSE, content);
+
+    public LoseMessage(int position) {
+        super(MessageType.LOSE);
+        this.position = position;
+        setContent();
     }
 
     public LoseMessage(byte[] content) {
         super(MessageType.LOSE, Arrays.copyOfRange(content, 1, content.length));
-        Map<String, Object> map = getContent();
-        position = (Integer) map.get("position");
     }
 
     @Override
-    public Map<String, Object> getContent() {
-        Map<String, Object> map = new HashMap<>();
+    protected void getContent() {
         ByteBuffer buffer = ByteBuffer.wrap(content);
-        map.put("position", buffer.getInt());
-        return map;
+        position = buffer.getInt();
     }
 
     @Override
-    public void setContent(Map<String, Object> map) {
-        position = (Integer) map.get("position");
+    protected void setContent() {
         ByteBuffer buffer = ByteBuffer.allocate(4);
         buffer.putInt(position);
         content = buffer.array();

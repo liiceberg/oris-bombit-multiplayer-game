@@ -2,36 +2,31 @@ package ru.kpfu.itis.oris.gimaletdinova.model.message;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 public class MoveMessage extends Message {
     private int code;
     private int playerPosition;
-    public MoveMessage(Map<String, Object> content) {
-        super(MessageType.MOVE, content);
+
+    public MoveMessage(int code, int playerPosition) {
+        super(MessageType.MOVE);
+        this.code = code;
+        this.playerPosition = playerPosition;
+        setContent();
     }
 
     public MoveMessage(byte[] content) {
         super(MessageType.MOVE, Arrays.copyOfRange(content, 1, content.length));
-        Map<String, Object> map = getContent();
-        code = (Integer) map.get("code");
-        playerPosition = (Integer) map.get("position");
     }
 
     @Override
-    public Map<String, Object> getContent() {
+    protected void getContent() {
         ByteBuffer buffer = ByteBuffer.wrap(content);
-        Map<String, Object> map = new HashMap<>();
-        map.put("code", buffer.getInt());
-        map.put("position", buffer.getInt());
-        return map;
+        code = buffer.getInt();
+        playerPosition = buffer.getInt();
     }
 
     @Override
-    public void setContent(Map<String, Object> map) {
-        code = (Integer) map.get("code");
-        playerPosition = (Integer) map.get("position");
+    protected void setContent() {
         ByteBuffer buffer = ByteBuffer.allocate(8);
         buffer.putInt(code);
         buffer.putInt(playerPosition);
