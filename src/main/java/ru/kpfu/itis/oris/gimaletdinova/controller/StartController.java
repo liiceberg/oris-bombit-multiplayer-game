@@ -2,6 +2,7 @@ package ru.kpfu.itis.oris.gimaletdinova.controller;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -31,8 +32,7 @@ public class StartController {
     @FXML
     protected void onJoinButtonClick() throws IOException {
         if (validateUsername()) {
-            Stage stage = (Stage) join.getScene().getWindow();
-            ControllerHelper.loadAndShowFXML(joinFxmlLoader, stage);
+            ControllerHelper.loadAndShowFXML(joinFxmlLoader);
         }
     }
 
@@ -42,9 +42,8 @@ public class StartController {
             String room = RoomRepository.createRoom();
 
             ControllerHelper.getApplication().initClientPlayer(room);
-            Stage stage = (Stage) create.getScene().getWindow();
-            ControllerHelper.loadAndShowFXML(createFxmlLoader, stage);
 
+            ControllerHelper.loadAndShowFXML(createFxmlLoader);
         }
     }
 

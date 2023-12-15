@@ -1,14 +1,14 @@
 package ru.kpfu.itis.oris.gimaletdinova.client;
 
+import javafx.application.Platform;
 import ru.kpfu.itis.oris.gimaletdinova.GameApplication;
 import ru.kpfu.itis.oris.gimaletdinova.exceptions.RoomNotFoundException;
 import ru.kpfu.itis.oris.gimaletdinova.model.message.*;
+import ru.kpfu.itis.oris.gimaletdinova.util.ControllerHelper;
 import ru.kpfu.itis.oris.gimaletdinova.util.RoomRepository;
 
 import java.io.*;
 import java.net.*;
-import java.util.LinkedList;
-import java.util.Queue;
 
 import static ru.kpfu.itis.oris.gimaletdinova.model.message.MessageType.*;
 import static ru.kpfu.itis.oris.gimaletdinova.server.GameServer.BUFFER_LENGTH;
@@ -19,7 +19,10 @@ public class ClientPlayer implements Closeable {
     private final byte[] buffer = new byte[BUFFER_LENGTH];
     private final InetAddress address;
     private final Integer port;
-    private final Queue<Message> serverMessages = new LinkedList<>();
+    private Thread serverListener;
+    private MoveMessage moveMessage;
+    private AddBombMessage addBombMessage;
+    private LoseMessage loseMessage;
 
     public ClientPlayer(GameApplication application, String room) throws RoomNotFoundException {
         this.application = application;
@@ -33,12 +36,13 @@ public class ClientPlayer implements Closeable {
         } catch (SocketException e) {
             throw new RuntimeException(e);
         }
-        new Thread(new ServerListener(this)).start();
+        serverListener = new Thread(new ServerListener(this));
+        serverListener.start();
     }
 
 
-
     public void send(Message message) {
+        System.out.println(message);
         try {
             byte[] data = message.getByteContent();
             DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
@@ -58,26 +62,36 @@ public class ClientPlayer implements Closeable {
             application.startGame(message.getUsers(), message.getCharacters());
         }
         if (data[0] == MOVE.getValue()) {
-            MoveMessage moveMessage = new MoveMessage(data);
-            serverMessages.add(moveMessage);
+            moveMessage = new MoveMessage(data);
+            Platform.runLater(this::move);
         }
         if (data[0] == ADD_BOMB.getValue()) {
-            AddBombMessage addBombMessage = new AddBombMessage(data);
-            serverMessages.add(addBombMessage);
+            addBombMessage = new AddBombMessage(data);
+            Platform.runLater(this::addBomb);
         }
         if (data[0] == LOSE.getValue()) {
-            LoseMessage loseMessage = new LoseMessage(data);
-            serverMessages.add(loseMessage);
+            loseMessage = new LoseMessage(data);
+            Platform.runLater(this::lose);
         }
     }
 
-    public Queue<Message> getServerMessages() {
-        return serverMessages;
+    private void move() {
+        ControllerHelper.getApplication().gameController.moveCharacter(moveMessage.getPlayerPosition(), moveMessage.getCode());
     }
+
+    private void addBomb() {
+        ControllerHelper.getApplication().gameController.addBomb(addBombMessage.getX(), addBombMessage.getY());
+    }
+
+    private void lose() {
+        ControllerHelper.getApplication().gameController.removeCharacter(loseMessage.getPlayerPosition());
+    }
+
 
     public int getPort() {
         return socket.getLocalPort();
     }
+
     public InetAddress getAddress() {
         try {
             return InetAddress.getLocalHost();
@@ -88,10 +102,12 @@ public class ClientPlayer implements Closeable {
 
     @Override
     public void close() {
+        serverListener.interrupt();
         socket.close();
     }
 
-    private static class ServerListener implements Runnable {
+
+    private class ServerListener implements Runnable {
         private final ClientPlayer clientPlayer;
 
         public ServerListener(ClientPlayer clientPlayer) {
@@ -100,15 +116,15 @@ public class ClientPlayer implements Closeable {
 
         @Override
         public void run() {
-            try {
-                while (true) {
+            while (true) {
+                try {
                     DatagramPacket packet = new DatagramPacket(clientPlayer.buffer, clientPlayer.buffer.length);
                     clientPlayer.socket.receive(packet);
                     byte[] data = packet.getData();
                     clientPlayer.parseMessage(data);
+                } catch (IOException | ClassNotFoundException e) {
+                    return;
                 }
-            } catch (IOException | ClassNotFoundException e) {
-                throw new RuntimeException(e);
             }
         }
     }

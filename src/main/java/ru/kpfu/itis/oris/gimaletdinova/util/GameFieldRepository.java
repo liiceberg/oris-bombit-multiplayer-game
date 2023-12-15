@@ -9,8 +9,9 @@ public class GameFieldRepository {
     private static final int OBSTACLES_COUNT = 78;
     public static final int WIDTH = 17;
     public static final int HEIGHT = 15;
-    private static final Block[][] BLOCKS = new Block[HEIGHT][WIDTH];
+    private static Block[][] BLOCKS;
     public static Block[][] getGameField() {
+        BLOCKS = new Block[HEIGHT][WIDTH];
         for (int i = 0; i < WIDTH; i ++) {
             BLOCKS[0][i] = Block.WALL;
             BLOCKS[HEIGHT - 1][i] = Block.WALL;

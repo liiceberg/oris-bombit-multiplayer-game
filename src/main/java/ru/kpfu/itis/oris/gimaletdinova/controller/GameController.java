@@ -12,12 +12,10 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import ru.kpfu.itis.oris.gimaletdinova.model.message.AddBombMessage;
 import ru.kpfu.itis.oris.gimaletdinova.model.message.LoseMessage;
-import ru.kpfu.itis.oris.gimaletdinova.model.message.Message;
 import ru.kpfu.itis.oris.gimaletdinova.model.message.MoveMessage;
 import ru.kpfu.itis.oris.gimaletdinova.util.*;
 import ru.kpfu.itis.oris.gimaletdinova.view.Character;
@@ -35,6 +33,7 @@ public class GameController {
     private int playerPosition;
     private final List<Character> characters = new ArrayList<>();
     private final List<Player> players = new ArrayList<>();
+    private AnimationTimer updateTimer;
     private int height;
     private KeyCode keyCode;
     private Image bomb;
@@ -52,10 +51,6 @@ public class GameController {
     @FXML
     public void initialize() {
         Platform.runLater(this::initAll);
-        Platform.runLater(this::listen);
-    }
-    private void listen() {
-//        new Thread(new ClientListener()).start();
     }
 
     private void initAll() {
@@ -71,63 +66,67 @@ public class GameController {
         initPlayers();
         initPlayAttributes();
         initInfoTable();
-        AnimationTimer timer = new AnimationTimer() {
+        updateTimer = new AnimationTimer() {
             @Override
             public void handle(long l) {
                 updatePlayer();
             }
         };
-        timer.start();
+        updateTimer.start();
     }
 
     public void updatePlayer() {
         if (blocks[getRowIndex()][getColumnIndex()] == Block.FIRE) {
+            updateTimer.stop();
             removeCharacter(playerPosition);
             Map<String, Object> map = new HashMap<>();
             map.put("position", playerPosition);
             LoseMessage loseMessage = new LoseMessage(map);
             ControllerHelper.getApplication().getClientPlayer().send(loseMessage);
             ControllerHelper.getApplication().isWin = false;
+            return;
         }
-        if (keyCode == null) {
-            player.getAnimation().stop();
-        } else switch (keyCode) {
-            case UP -> {
-                player.getAnimation().play();
-                player.getAnimation().setOffsetY(height * 3);
-                if (isField(KeyCode.UP)) {
-                    player.moveY(-2);
-                    sendMoveMessage(keyCode.getCode());
+        Integer direction = keyCode == null ? Integer.MIN_VALUE : keyCode.getCode();
+        moveCharacter(playerPosition, direction);
+        sendMoveMessage(direction);
+    }
+    public void moveCharacter(int position, Integer direction) {
+        Character character = characters.get(position - 1);
+        if (direction == Integer.MIN_VALUE) {
+            character.getAnimation().stop();
+        } else {
+            character.getAnimation().play();
+            if (direction == KeyCode.RIGHT.getCode()) {
+                character.getAnimation().setOffsetY(height * 2);
+                if (isField(KeyCode.RIGHT, character)) {
+                    character.moveX(2);
                 }
+                return;
             }
-            case DOWN -> {
-                player.getAnimation().play();
-                player.getAnimation().setOffsetY(0);
-                if (isField(KeyCode.DOWN)) {
-                    player.moveY(2);
-                    sendMoveMessage(keyCode.getCode());
+            if (direction == KeyCode.LEFT.getCode()) {
+                character.getAnimation().setOffsetY(height);
+                if (isField(KeyCode.LEFT, character)) {
+                    character.moveX(-2);
                 }
+                return;
             }
-            case RIGHT -> {
-                player.getAnimation().play();
-                player.getAnimation().setOffsetY(height * 2);
-                if (isField(KeyCode.RIGHT)) {
-                    player.moveX(2);
-                    sendMoveMessage(keyCode.getCode());
+            if (direction == KeyCode.UP.getCode()) {
+                character.getAnimation().setOffsetY(height * 3);
+                if (isField(KeyCode.UP, character)) {
+                    character.moveY(-2);
                 }
+                return;
             }
-            case LEFT -> {
-                player.getAnimation().play();
-                player.getAnimation().setOffsetY(height);
-                if (isField(KeyCode.LEFT)) {
-                    player.moveX(-2);
-                    sendMoveMessage(keyCode.getCode());
+            if (direction == KeyCode.DOWN.getCode()) {
+                character.getAnimation().setOffsetY(0);
+                if (isField(KeyCode.DOWN, character)) {
+                    character.moveY(2);
                 }
             }
         }
     }
 
-    private void sendMoveMessage(int keyCode) {
+    private void sendMoveMessage(Integer keyCode) {
         Map<String, Object> map = new HashMap<>();
         map.put("code", keyCode);
         map.put("position", playerPosition);
@@ -207,7 +206,7 @@ public class GameController {
         });
     }
 
-    private void addBomb(int x, int y) {
+    public void addBomb(int x, int y) {
         ImageView view = new ImageView(bomb);
         view.setFitHeight(blockSize / 1.5);
         view.setFitWidth(blockSize / 1.5);
@@ -259,22 +258,22 @@ public class GameController {
         return (int) Math.ceil(player.getPlayerTranslateX() / blockSize);
     }
 
-    private boolean isField(KeyCode code) {
+    private boolean isField(KeyCode code, Character character) {
         switch (code) {
             case UP -> {
-                int row = (int) Math.ceil((player.getPlayerTranslateY() - blockSize - 1) / blockSize);
+                int row = (int) Math.ceil((character.getPlayerTranslateY() - blockSize - 1) / blockSize);
                 return blocks[row][getColumnIndex()] == Block.FIELD || blocks[row][getColumnIndex()] == Block.FIRE;
             }
             case DOWN -> {
-                int row = (int) Math.ceil((player.getPlayerTranslateY() + 1) / blockSize);
+                int row = (int) Math.ceil((character.getPlayerTranslateY() + 1) / blockSize);
                 return blocks[row][getColumnIndex()] == Block.FIELD || blocks[row][getColumnIndex()] == Block.FIRE;
             }
             case RIGHT -> {
-                int column = (int) Math.ceil((player.getPlayerTranslateX() + 1) / blockSize);
+                int column = (int) Math.ceil((character.getPlayerTranslateX() + 1) / blockSize);
                 return blocks[getRowIndex()][column] == Block.FIELD || blocks[getRowIndex()][column] == Block.FIRE;
             }
             case LEFT -> {
-                int column = (int) Math.ceil((player.getPlayerTranslateX() - blockSize - 1) / blockSize);
+                int column = (int) Math.ceil((character.getPlayerTranslateX() - blockSize - 1) / blockSize);
                 return blocks[getRowIndex()][column] == Block.FIELD || blocks[getRowIndex()][column] == Block.FIRE;
             }
 
@@ -308,9 +307,6 @@ public class GameController {
         }
     }
 
-    public void moveCharacter(int position, int direction) {
-        Character character = characters.get(position);
-    }
     public void removeCharacter(int position) {
         Player p = players.get(position - 1);
         p.isLose = true;
@@ -318,38 +314,16 @@ public class GameController {
         p.username.setStyle("-fx-text-fill: red;");
         gridPane.getChildren().remove(characters.get(p.position - 1));
         if (++losersCount == players.size() - 1) {
+            updateTimer.stop();
             gameOver();
         }
     }
 
     private void gameOver() {
-        Stage stage = (Stage) code.getScene().getWindow();
         try {
-            ControllerHelper.loadAndShowFXML(fxmlLoader, stage);
+            ControllerHelper.loadAndShowFXML(fxmlLoader);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    private class ClientListener implements Runnable {
-        @Override
-        public void run() {
-            while (true) {
-                Message m;
-                if ((m = ControllerHelper.getApplication().getClientPlayer().getServerMessages().poll()) != null) {
-                    System.out.println(m);
-                    switch (m.getMessageType()) {
-                        case MOVE -> moveCharacter(((MoveMessage) m).getPlayerPosition(), ((MoveMessage) m).getCode());
-                        case ADD_BOMB -> {
-                            int x = ((AddBombMessage) m).getX();
-                            int y = ((AddBombMessage) m).getY();
-                            System.out.println("evil bomb" + x + " " + y);
-                            addBomb(x, y);
-                        }
-                        case LOSE -> removeCharacter(((LoseMessage) m).getPlayerPosition());
-                    }
-                }
-            }
         }
     }
 

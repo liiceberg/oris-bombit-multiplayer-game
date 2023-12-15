@@ -38,7 +38,7 @@ public class MoveMessage extends Message {
         content = buffer.array();
     }
 
-    public int getCode() {
+    public Integer getCode() {
         return code;
     }
 

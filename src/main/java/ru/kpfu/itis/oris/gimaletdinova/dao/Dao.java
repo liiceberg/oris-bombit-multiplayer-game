@@ -15,6 +15,7 @@ public class Dao {
     private final String SAVE_SQL = "insert into rooms(code, port, address, field) values(?, ?, ?, ?);";
     private final String DELETE_SQL = "delete from rooms where port=?;";
     private final String GET_GAME_FIELD = "select field from rooms where code=?;";
+    private final String UPDATE_FIELD = "update rooms set field=? where code=?;";
 
     public Map<String, Object[]> getAll() throws SQLException {
         Statement statement = connection.createStatement();
@@ -49,6 +50,14 @@ public class Dao {
             }
         }
         return field;
+    }
+
+    public void updateField(String code, Block[][] field) throws SQLException {
+        Array array = connection.createArrayOf("varchar", field);
+        PreparedStatement statement = connection.prepareStatement(UPDATE_FIELD);
+        statement.setArray(1, array);
+        statement.setString(2, code);
+        statement.executeUpdate();
     }
 
     public void save(String code, Integer port, InetAddress address, Block[][] field) throws SQLException {

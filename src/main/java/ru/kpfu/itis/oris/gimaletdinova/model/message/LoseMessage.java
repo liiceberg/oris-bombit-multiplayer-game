@@ -1,6 +1,7 @@
 package ru.kpfu.itis.oris.gimaletdinova.model.message;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,7 +12,7 @@ public class LoseMessage extends Message {
     }
 
     public LoseMessage(byte[] content) {
-        super(MessageType.LOSE, content);
+        super(MessageType.LOSE, Arrays.copyOfRange(content, 1, content.length));
         Map<String, Object> map = getContent();
         position = (Integer) map.get("position");
     }

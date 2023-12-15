@@ -4,7 +4,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane fx:id="anchorPane" id="game-field" prefHeight="525.0" prefWidth="750.0" stylesheets="@../css/styles.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.kpfu.itis.oris.gimaletdinova.controller.GameController">
+<AnchorPane fx:id="anchorPane" id="game-field" prefHeight="525.0" prefWidth="750.0" stylesheets="@../css/styles.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
 
     <Label text="Room:" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="16.0" />
     <Label fx:id="code" AnchorPane.leftAnchor="76" AnchorPane.topAnchor="16" />

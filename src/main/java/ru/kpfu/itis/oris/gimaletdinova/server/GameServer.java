@@ -20,7 +20,7 @@ public class GameServer implements Closeable, Runnable {
     private final byte[] buffer = new byte[BUFFER_LENGTH];
     private final DatagramSocket socket;
     private final List<Client> players = new ArrayList<>();
-    public static final int PLAYERS_COUNT = 1;
+    public static final int PLAYERS_COUNT = 2;
     private final InetAddress address;
 
     public GameServer() {
@@ -53,7 +53,10 @@ public class GameServer implements Closeable, Runnable {
             addPlayer(connectMessage);
         }
         if (data[0] == DISCONNECT.getValue()) {
-            close();
+            DisconnectMessage disconnectMessage = new DisconnectMessage(data);
+            if (disconnectMessage.getPlayerPosition() == 1) {
+                close();
+            }
         }
         if (data[0] == MOVE.getValue()) {
             MoveMessage moveMessage = new MoveMessage(data);
@@ -131,6 +134,11 @@ public class GameServer implements Closeable, Runnable {
 
     @Override
     public void close() {
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         socket.close();
         try {
             RoomRepository.dao.delete(port);
