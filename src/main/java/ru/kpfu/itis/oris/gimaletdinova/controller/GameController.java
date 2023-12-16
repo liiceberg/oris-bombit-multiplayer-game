@@ -4,7 +4,6 @@ import javafx.animation.AnimationTimer;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -14,17 +13,16 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
-import ru.kpfu.itis.oris.gimaletdinova.model.message.AddBombMessage;
-import ru.kpfu.itis.oris.gimaletdinova.model.message.LoseMessage;
-import ru.kpfu.itis.oris.gimaletdinova.model.message.MoveMessage;
+import ru.kpfu.itis.oris.gimaletdinova.model.message.messages.AddBombMessage;
+import ru.kpfu.itis.oris.gimaletdinova.model.message.messages.LoseMessage;
+import ru.kpfu.itis.oris.gimaletdinova.model.message.messages.MoveMessage;
 import ru.kpfu.itis.oris.gimaletdinova.util.*;
 import ru.kpfu.itis.oris.gimaletdinova.view.Character;
 
 import java.io.IOException;
 import java.util.*;
 
-public class GameController {
-    private final FXMLLoader fxmlLoader = new FXMLLoader(GameWaitingViewController.class.getResource("/fxml/game-over-view.fxml"));
+public class GameController implements Controller {
     @FXML
     public Label code;
     @FXML
@@ -54,8 +52,8 @@ public class GameController {
     }
 
     private void initAll() {
-        String[] users = ControllerHelper.getApplication().getUsers();
-        int[] characters = ControllerHelper.getApplication().getCharacters();
+        String[] users = ApplicationUtil.getApplication().getUsers();
+        int[] characters = ApplicationUtil.getApplication().getCharacters();
         for (int i = 0; i < users.length; i++) {
             Player p = new Player(i + 1, users[i], characters[i]);
             players.add(p);
@@ -76,18 +74,19 @@ public class GameController {
     }
 
     public void updatePlayer() {
-        if (blocks[getRowIndex()][getColumnIndex()] == Block.FIRE) {
+        if (blocks[getRowIndex(player)][getColumnIndex(player)] == Block.FIRE) {
             updateTimer.stop();
             removeCharacter(playerPosition);
             LoseMessage loseMessage = new LoseMessage(playerPosition);
-            ControllerHelper.getApplication().getClientPlayer().send(loseMessage);
-            ControllerHelper.getApplication().isWin = false;
+            ApplicationUtil.getApplication().getClientPlayer().send(loseMessage);
+            ApplicationUtil.getApplication().isWin = false;
             return;
         }
         Integer direction = keyCode == null ? Integer.MIN_VALUE : keyCode.getCode();
         moveCharacter(playerPosition, direction);
         sendMoveMessage(direction);
     }
+
     public void moveCharacter(int position, Integer direction) {
         Character character = characters.get(position - 1);
         if (direction == Integer.MIN_VALUE) {
@@ -108,37 +107,37 @@ public class GameController {
                 }
                 return;
             }
-            if (direction == KeyCode.UP.getCode()) {
-                character.getAnimation().setOffsetY(height * 3);
-                if (isField(KeyCode.UP, character)) {
-                    character.moveY(-2);
-                }
-                return;
+
+        }
+        if (direction == KeyCode.UP.getCode()) {
+            character.getAnimation().setOffsetY(height * 3);
+            if (isField(KeyCode.UP, character)) {
+                character.moveY(-2);
             }
-            if (direction == KeyCode.DOWN.getCode()) {
-                character.getAnimation().setOffsetY(0);
-                if (isField(KeyCode.DOWN, character)) {
-                    character.moveY(2);
-                }
+            return;
+        }
+        if (direction == KeyCode.DOWN.getCode()) {
+            character.getAnimation().setOffsetY(0);
+            if (isField(KeyCode.DOWN, character)) {
+                character.moveY(2);
             }
         }
     }
 
     private void sendMoveMessage(Integer keyCode) {
         MoveMessage moveMessage = new MoveMessage(keyCode, playerPosition);
-        ControllerHelper.getApplication().getClientPlayer().send(moveMessage);
+        ApplicationUtil.getApplication().getClientPlayer().send(moveMessage);
     }
 
     private void sendAddBombMessage(int x, int y) {
         AddBombMessage message = new AddBombMessage(x, y, playerPosition);
-        ControllerHelper.getApplication().getClientPlayer().send(message);
+        ApplicationUtil.getApplication().getClientPlayer().send(message);
     }
 
     private void initGameField() {
-        blocks = RoomRepository.getGameField(ControllerHelper.getApplication().getRoom());
+        blocks = RoomRepository.getGameField(ApplicationUtil.getApplication().getRoom());
         blockSize = gridPane.getPrefHeight() / gridPane.getRowCount();
         blockBuilder = new BlockBuilder(blockSize);
-
         for (int i = 0; i < gridPane.getRowCount(); i++) {
             for (int j = 0; j < gridPane.getColumnCount(); j++) {
                 gridPane.add(blockBuilder.getView(blocks[i][j]), j, i);
@@ -176,14 +175,14 @@ public class GameController {
     }
 
     private void initRoom() {
-        code.setText(ControllerHelper.getApplication().getRoom());
+        code.setText(ApplicationUtil.getApplication().getRoom());
     }
 
     private void initActions() {
         anchorPane.getScene().setOnKeyPressed(event -> {
             if (event.getCode().equals(KeyCode.SPACE)) {
-                int x = getColumnIndex();
-                int y = getRowIndex();
+                int x = getColumnIndex(player);
+                int y = getRowIndex(player);
                 sendAddBombMessage(x, y);
                 addBomb(x, y);
             } else {
@@ -201,9 +200,6 @@ public class GameController {
         ImageView view = new ImageView(bomb);
         view.setFitHeight(blockSize / 1.5);
         view.setFitWidth(blockSize / 1.5);
-//        System.out.println(player.getPlayerTranslateY() + " " + player.getPlayerTranslateX());
-//        System.out.println();
-//        System.out.println("b " + player.getBoundsInLocal() + " " + player.getBoundsInParent());
         gridPane.add(view, x, y);
         PauseTransition pause = new PauseTransition(Duration.millis(3_000));
         pause.setOnFinished(event -> {
@@ -241,46 +237,62 @@ public class GameController {
         }
     }
 
-    private int getRowIndex() {
-        return (int) Math.ceil(player.getPlayerTranslateY() / blockSize);
+    private int getRowIndex(Character character) {
+        return (int) Math.ceil(character.getPlayerTranslateY() / blockSize);
     }
 
-    private int getColumnIndex() {
-        return (int) Math.ceil(player.getPlayerTranslateX() / blockSize);
+    private int getColumnIndex(Character character) {
+        return (int) Math.ceil(character.getPlayerTranslateX() / blockSize);
     }
 
     private boolean isField(KeyCode code, Character character) {
+        int inaccuracy = 6;
         switch (code) {
             case UP -> {
-                int row = (int) Math.ceil((character.getPlayerTranslateY() - blockSize - 1) / blockSize);
-                return blocks[row][getColumnIndex()] == Block.FIELD || blocks[row][getColumnIndex()] == Block.FIRE;
+                int row = (int) Math.ceil((character.getPlayerTranslateY() - blockSize) / blockSize);
+                return verticalCheck(row, character, inaccuracy);
             }
             case DOWN -> {
                 int row = (int) Math.ceil((character.getPlayerTranslateY() + 1) / blockSize);
-                return blocks[row][getColumnIndex()] == Block.FIELD || blocks[row][getColumnIndex()] == Block.FIRE;
+                return verticalCheck(row, character, inaccuracy);
             }
             case RIGHT -> {
                 int column = (int) Math.ceil((character.getPlayerTranslateX() + 1) / blockSize);
-                return blocks[getRowIndex()][column] == Block.FIELD || blocks[getRowIndex()][column] == Block.FIRE;
+                return horizontalCheck(column, character, inaccuracy);
             }
             case LEFT -> {
-                int column = (int) Math.ceil((character.getPlayerTranslateX() - blockSize - 1) / blockSize);
-                return blocks[getRowIndex()][column] == Block.FIELD || blocks[getRowIndex()][column] == Block.FIRE;
-            }
-
+                int column = (int) Math.ceil((character.getPlayerTranslateX() - blockSize) / blockSize);
+                return horizontalCheck(column, character, inaccuracy);            }
         }
         return false;
     }
 
+    private boolean verticalCheck(int row, Character character, int inaccuracy) {
+        int column1 = getColumnIndex(character);
+        int column2 = (int) Math.ceil((character.getPlayerTranslateX() - blockSize + inaccuracy) / blockSize);
+        return blocks[row][column1] != Block.OBSTACLE && blocks[row][column1] != Block.WALL
+                && blocks[row][column2] != Block.OBSTACLE && blocks[row][column2] != Block.WALL;
+
+    }
+
+    private boolean horizontalCheck(int column, Character character, int inaccuracy) {
+        int row1 = getRowIndex(character);
+        int row2 = (int) Math.ceil((character.getPlayerTranslateY() - blockSize + inaccuracy) / blockSize);
+        return blocks[row1][column] != Block.OBSTACLE && blocks[row1][column] != Block.WALL
+                && blocks[row2][column] != Block.OBSTACLE && blocks[row2][column] != Block.WALL;
+    }
+
+
     private void addPlayer(int imgNumber, int position) {
-        Character character = new Character(CharacterFactory.create(imgNumber), blockSize);
+        int difference = 4;
+        Character character = new Character(CharacterFactory.create(imgNumber), blockSize - difference);
         setCharacterOffset(position, character);
         characters.add(character);
     }
 
     private void initPlayers() {
-        playerPosition = ControllerHelper.getApplication().getUser().getPosition();
-        for (Player p: players) {
+        playerPosition = ApplicationUtil.getApplication().getUser().getPosition();
+        for (Player p : players) {
             addPlayer(p.character, p.position);
             if (p.position == playerPosition) {
                 player = characters.get(playerPosition - 1);
@@ -290,7 +302,7 @@ public class GameController {
     }
 
     private void initInfoTable() {
-        for (Player p: players) {
+        for (Player p : players) {
             ImageView img = CharacterFactory.create(p.character);
             Character.setSettings(img, blockSize);
             Label divisor = new Label(" ");
@@ -312,7 +324,7 @@ public class GameController {
 
     private void gameOver() {
         try {
-            ControllerHelper.loadAndShowFXML(fxmlLoader);
+            ApplicationUtil.loadAndShowFXML("/fxml/game-over-view.fxml");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

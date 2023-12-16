@@ -2,31 +2,26 @@ package ru.kpfu.itis.oris.gimaletdinova.controller;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import ru.kpfu.itis.oris.gimaletdinova.GameApplication;
-import ru.kpfu.itis.oris.gimaletdinova.model.message.DisconnectMessage;
-import ru.kpfu.itis.oris.gimaletdinova.util.ControllerHelper;
+import ru.kpfu.itis.oris.gimaletdinova.model.message.messages.DisconnectMessage;
+import ru.kpfu.itis.oris.gimaletdinova.model.message.messages.PlayAgainMessage;
+import ru.kpfu.itis.oris.gimaletdinova.util.ApplicationUtil;
 import ru.kpfu.itis.oris.gimaletdinova.util.GameFieldRepository;
 import ru.kpfu.itis.oris.gimaletdinova.util.RoomRepository;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 
-import static ru.kpfu.itis.oris.gimaletdinova.util.ControllerHelper.getApplication;
+import static ru.kpfu.itis.oris.gimaletdinova.util.ApplicationUtil.getApplication;
 
-public class GameOverController {
+public class GameOverController implements Controller {
     @FXML
     public Label title;
     private final String WIN_TEXT = "You win!!";
     private final String LOSE_TEXT = "Ooops... You lose((";
     @FXML
     public Button playButton;
-
-    FXMLLoader fxmlLoader = new FXMLLoader(GameApplication.class.getResource("/fxml/start-view.fxml"));
 
     @FXML
     public void initialize() {
@@ -49,16 +44,14 @@ public class GameOverController {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        getApplication().gameController = new GameController();
-        getApplication().startGame();
+        PlayAgainMessage playAgainMessage = new PlayAgainMessage();
+        getApplication().getClientPlayer().send(playAgainMessage);
     }
 
     public void onExitButtonClicked() {
         try {
-            DisconnectMessage message = new DisconnectMessage(getApplication().getUser().getPosition());
-            getApplication().getClientPlayer().send(message);
-            getApplication().getClientPlayer().close();
-            ControllerHelper.loadAndShowFXML(fxmlLoader);
+            ApplicationUtil.getApplication().exit();
+            ApplicationUtil.loadAndShowFXML("/fxml/start-view.fxml");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

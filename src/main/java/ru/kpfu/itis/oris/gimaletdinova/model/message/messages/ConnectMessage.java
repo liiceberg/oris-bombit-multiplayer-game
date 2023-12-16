@@ -1,4 +1,7 @@
-package ru.kpfu.itis.oris.gimaletdinova.model.message;
+package ru.kpfu.itis.oris.gimaletdinova.model.message.messages;
+
+import ru.kpfu.itis.oris.gimaletdinova.model.message.Message;
+import ru.kpfu.itis.oris.gimaletdinova.model.message.MessageType;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

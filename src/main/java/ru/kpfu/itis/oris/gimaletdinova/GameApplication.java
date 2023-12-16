@@ -2,26 +2,28 @@ package ru.kpfu.itis.oris.gimaletdinova;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 import ru.kpfu.itis.oris.gimaletdinova.client.ClientPlayer;
 import ru.kpfu.itis.oris.gimaletdinova.controller.GameController;
+import ru.kpfu.itis.oris.gimaletdinova.controller.GameWaitingViewController;
 import ru.kpfu.itis.oris.gimaletdinova.exceptions.RoomNotFoundException;
 import ru.kpfu.itis.oris.gimaletdinova.model.message.*;
 import ru.kpfu.itis.oris.gimaletdinova.model.User;
-import ru.kpfu.itis.oris.gimaletdinova.util.ControllerHelper;
+import ru.kpfu.itis.oris.gimaletdinova.model.message.messages.ConnectMessage;
+import ru.kpfu.itis.oris.gimaletdinova.model.message.messages.DisconnectMessage;
+import ru.kpfu.itis.oris.gimaletdinova.util.ApplicationUtil;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+
+import static ru.kpfu.itis.oris.gimaletdinova.util.ApplicationUtil.getApplication;
 
 public class GameApplication extends Application {
     public static void main(String[] args) {
         launch();
     }
-    public GameController gameController = new GameController();
-    public Stage primaryStage;
+
+    public GameController gameController;
+    public GameWaitingViewController gameWaitingViewController;
     private ClientPlayer clientPlayer;
     private User user;
     private String room;
@@ -31,23 +33,23 @@ public class GameApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        primaryStage = stage;
+        ApplicationUtil.setPrimaryStage(stage);
 
         stage.setOnCloseRequest(e -> {
-            DisconnectMessage message = new DisconnectMessage(user.getPosition());
-            clientPlayer.send(message);
-            clientPlayer.close();
+            if (clientPlayer != null) {
+                DisconnectMessage message = new DisconnectMessage(user.getPosition());
+                clientPlayer.send(message);
+                clientPlayer.close();
+            }
             System.exit(0);
         });
 
-        ControllerHelper.setApplication(this);
+        ApplicationUtil.setApplication(this);
 
-        FXMLLoader fxmlLoader = new FXMLLoader(GameApplication.class.getResource("/fxml/start-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 750, 525);
 //        stage.initStyle(StageStyle.UNDECORATED);
         stage.setTitle("BOMB IT");
-        stage.setScene(scene);
-        stage.show();
+        ApplicationUtil.loadAndShowFXML("/fxml/start-view.fxml");
+
 
     }
 
@@ -56,6 +58,7 @@ public class GameApplication extends Application {
     }
 
     public boolean initClientPlayer(String room) {
+        gameWaitingViewController = new GameWaitingViewController();
         try {
             clientPlayer = new ClientPlayer(this, room);
         } catch (RoomNotFoundException e) {
@@ -84,16 +87,28 @@ public class GameApplication extends Application {
         this.users = users;
         Platform.runLater(this::startGame);
     }
+
     public void startGame() {
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(GameApplication.class.getResource("/fxml/game-view.fxml"));
-            fxmlLoader.setController(gameController);
-            Scene s = new Scene(fxmlLoader.load(), 750, 525);
-            primaryStage.setScene(s);
-            primaryStage.show();
+            gameController = new GameController();
+            ApplicationUtil.loadAndShowFXML("/fxml/game-view.fxml", gameController);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void waitPlayers() {
+        try {
+            ApplicationUtil.loadAndShowFXML("/fxml/game-waiting-view.fxml", gameWaitingViewController);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void exit() {
+        DisconnectMessage message = new DisconnectMessage(getApplication().getUser().getPosition());
+        clientPlayer.send(message);
+        clientPlayer.close();
+        clientPlayer = null;
     }
 
     public int[] getCharacters() {

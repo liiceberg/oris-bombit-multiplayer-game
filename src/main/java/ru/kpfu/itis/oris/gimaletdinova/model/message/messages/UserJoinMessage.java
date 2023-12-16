@@ -1,15 +1,17 @@
-package ru.kpfu.itis.oris.gimaletdinova.model.message;
+package ru.kpfu.itis.oris.gimaletdinova.model.message.messages;
+
+import ru.kpfu.itis.oris.gimaletdinova.model.message.Message;
+import ru.kpfu.itis.oris.gimaletdinova.model.message.MessageType;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 public class UserJoinMessage extends Message {
     private String username;
-    private int character;
-    public UserJoinMessage(String username, int character) {
+
+    public UserJoinMessage(String username) {
         super(MessageType.JOIN_USER);
         this.username = username;
-        this.character = character;
         setContent();
     }
 
@@ -23,22 +25,19 @@ public class UserJoinMessage extends Message {
         StringBuilder builder = new StringBuilder();
 
         char c;
-        while ((c = buffer.getChar()) != Character.MIN_VALUE) {
+        while (buffer.hasRemaining() && (c = buffer.getChar()) != Character.MIN_VALUE) {
             builder.append(c);
         }
 
         username = builder.toString();
-        character = buffer.getInt();
     }
 
     @Override
     protected void setContent() {
-        ByteBuffer buffer = ByteBuffer.allocate(username.length() * 2 + 2 + 4);
+        ByteBuffer buffer = ByteBuffer.allocate(username.length() * 2);
         for (char c: username.toCharArray()) {
             buffer.putChar(c);
         }
-        buffer.putChar(Character.MIN_VALUE);
-        buffer.putInt(character);
         content = buffer.array();
     }
 
@@ -46,7 +45,4 @@ public class UserJoinMessage extends Message {
         return username;
     }
 
-    public int getCharacter() {
-        return character;
-    }
 }

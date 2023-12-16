@@ -1,6 +1,7 @@
 package ru.kpfu.itis.oris.gimaletdinova.server;
 
 import ru.kpfu.itis.oris.gimaletdinova.model.message.*;
+import ru.kpfu.itis.oris.gimaletdinova.model.message.messages.*;
 import ru.kpfu.itis.oris.gimaletdinova.util.CharacterFactory;
 import ru.kpfu.itis.oris.gimaletdinova.util.RoomRepository;
 
@@ -22,6 +23,7 @@ public class GameServer implements Closeable, Runnable {
     private final List<Client> players = new ArrayList<>();
     public static final int PLAYERS_COUNT = 2;
     private final InetAddress address;
+    private boolean isAlive = true;
 
     public GameServer() {
         try {
@@ -36,7 +38,7 @@ public class GameServer implements Closeable, Runnable {
     @Override
     public void run() {
         try {
-            while (true) {
+            while (isAlive) {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 socket.receive(packet);
                 parseMessage(packet.getData());
@@ -51,12 +53,17 @@ public class GameServer implements Closeable, Runnable {
         if (data[0] == CONNECT.getValue()) {
             ConnectMessage connectMessage = new ConnectMessage(data);
             addPlayer(connectMessage);
+            return;
         }
         if (data[0] == DISCONNECT.getValue()) {
             DisconnectMessage disconnectMessage = new DisconnectMessage(data);
             if (disconnectMessage.getPlayerPosition() == 1) {
+                isAlive = false;
+                RoomClosedMessage message = new RoomClosedMessage();
+                sendAll(message);
                 close();
             }
+            return;
         }
         if (data[0] == MOVE.getValue()) {
             MoveMessage moveMessage = new MoveMessage(data);
@@ -65,6 +72,7 @@ public class GameServer implements Closeable, Runnable {
                     sendMessage(moveMessage, players.get(i));
                 }
             }
+            return;
         }
         if (data[0] == ADD_BOMB.getValue()) {
             AddBombMessage addBombMessage = new AddBombMessage(data);
@@ -73,6 +81,7 @@ public class GameServer implements Closeable, Runnable {
                     sendMessage(addBombMessage, players.get(i));
                 }
             }
+            return;
         }
         if (data[0] == LOSE.getValue()) {
             LoseMessage loseMessage = new LoseMessage(data);
@@ -81,28 +90,42 @@ public class GameServer implements Closeable, Runnable {
                     sendMessage(loseMessage, players.get(i));
                 }
             }
+            return;
+        }
+        if (data[0] == PLAY_AGAIN.getValue()) {
+            sendStartMessage();
         }
     }
 
     private void addPlayer(ConnectMessage message) {
         if (players.size() + 1 <= PLAYERS_COUNT) {
             Client client = new Client(message.getAddress(), message.getPort(), message.getUsername());
+            sendCurrentUsers(client);
             players.add(client);
             ConnectResponseMessage responseMessage = new ConnectResponseMessage(players.size());
             sendMessage(responseMessage, client);
-            UserJoinMessage userJoinMessage = new UserJoinMessage(client.username, client.characterImg);
+            UserJoinMessage userJoinMessage = new UserJoinMessage(client.username);
             sendAll(userJoinMessage);
             if (players.size() == PLAYERS_COUNT) {
-                String[] users = new String[PLAYERS_COUNT];
-                int[] characters = new int[PLAYERS_COUNT];
-                for (int i = 0; i < players.size(); i++) {
-                    users[i] = players.get(i).username;
-                    characters[i] = players.get(i).characterImg;
-                }
-                GameStartMessage gameStartMessage = new GameStartMessage(users, characters);
-                sendAll(gameStartMessage);
+                sendStartMessage();
             }
         }
+    }
+    private void sendCurrentUsers(Client client) {
+        for (Client c: players) {
+            UserJoinMessage userJoinMessage = new UserJoinMessage(c.username);
+            sendMessage(userJoinMessage, client);
+        }
+    }
+    private void sendStartMessage() {
+        String[] users = new String[PLAYERS_COUNT];
+        int[] characters = new int[PLAYERS_COUNT];
+        for (int i = 0; i < players.size(); i++) {
+            users[i] = players.get(i).username;
+            characters[i] = players.get(i).characterImg;
+        }
+        GameStartMessage gameStartMessage = new GameStartMessage(users, characters);
+        sendAll(gameStartMessage);
     }
 
     public int getPort() {
@@ -131,11 +154,6 @@ public class GameServer implements Closeable, Runnable {
 
     @Override
     public void close() {
-        try {
-            Thread.sleep(5_000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
         socket.close();
         try {
             RoomRepository.dao.delete(port);

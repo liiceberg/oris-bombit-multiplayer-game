@@ -3,7 +3,7 @@ package ru.kpfu.itis.oris.gimaletdinova.model.message;
 import java.nio.ByteBuffer;
 
 public abstract class Message {
-    private MessageType messageType;
+    private final MessageType messageType;
     protected byte[] content;
 
     public Message(MessageType messageType) {

@@ -4,11 +4,11 @@
 <?import javafx.scene.layout.*?>
 
 <AnchorPane id="background" prefHeight="525.0" prefWidth="750.0" stylesheets="@../css/styles.css"
-            xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="ru.kpfu.itis.oris.gimaletdinova.controller.GameWaitingViewController">
+            xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
     <Label styleClass="text" text="ROOM:" AnchorPane.leftAnchor="16" AnchorPane.topAnchor="16"/>
     <Label fx:id="code" layoutX="79.0" layoutY="16.0" styleClass="text" AnchorPane.leftAnchor="79.0"
            AnchorPane.topAnchor="16.0"/>
     <Label layoutX="270.0" layoutY="250.0" styleClass="text" text="Expecting all players"/>
-    <VBox fx:id="usersBox" styleClass="text" AnchorPane.leftAnchor="16" layoutY="52.0" prefHeight="198.0" prefWidth="210.0"/>
+    <VBox fx:id="usersBox" styleClass="text" AnchorPane.leftAnchor="16" layoutY="52.0" prefHeight="198.0"
+          prefWidth="210.0"/>
 </AnchorPane>

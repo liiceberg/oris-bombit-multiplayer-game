@@ -8,7 +8,7 @@
 
     <Label text="Room:" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="16.0" />
     <Label fx:id="code" AnchorPane.leftAnchor="76" AnchorPane.topAnchor="16" />
-    <GridPane fx:id="gridPane" layoutX="155.0" prefHeight="525.0" prefWidth="595.0">
+    <GridPane fx:id="gridPane" layoutX="155.0" prefHeight="510.0" prefWidth="578.0">
         <columnConstraints>
             <ColumnConstraints halignment="CENTER" hgrow="NEVER" prefWidth="100.0" />
             <ColumnConstraints halignment="CENTER" hgrow="NEVER" prefWidth="100.0" />
