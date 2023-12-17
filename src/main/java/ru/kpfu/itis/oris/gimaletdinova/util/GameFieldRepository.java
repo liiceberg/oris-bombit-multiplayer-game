@@ -1,16 +1,62 @@
 package ru.kpfu.itis.oris.gimaletdinova.util;
 
+import ru.kpfu.itis.oris.gimaletdinova.model.Block;
+import ru.kpfu.itis.oris.gimaletdinova.model.Mode;
+
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
 public class GameFieldRepository {
-    private static final Random random = new Random();
-    private static final int OBSTACLES_COUNT = 78;
+    public static final int OBSTACLES_COUNT = 78;
     public static final int WIDTH = 17;
     public static final int HEIGHT = 15;
+    private static final Random random = new Random();
+    private static Mode fieldMode;
+    private static Mode obstaclesMode;
     private static Block[][] BLOCKS;
-    public static Block[][] getGameField() {
+    public static Block[][] generateGameField() {
+        BLOCKS = new Block[HEIGHT][WIDTH];
+        switch (random.nextInt(3)) {
+            case 0 -> fieldMode = Mode.FIRST;
+            case 1 -> fieldMode = Mode.SECOND;
+            case 2 -> fieldMode = Mode.THIRD;
+        }
+        switch (random.nextInt(3)) {
+            case 0 -> obstaclesMode = Mode.FIRST;
+            case 1 -> obstaclesMode = Mode.SECOND;
+            case 2 -> obstaclesMode = Mode.THIRD;
+        }
+        return getGameField(fieldMode);
+    }
+    public static Mode getFieldMode() {
+        return fieldMode;
+    }
+
+    public static Mode getObstaclesMode() {
+        return obstaclesMode;
+    }
+
+    public static Block[][] getGameField(Mode mode) {
+        initializeWalls(mode);
+        generateObstacles();
+        initializeFields();
+        return BLOCKS;
+    }
+
+    public static Block[][] getGameField(Mode mode, Block[][] obstacles) {
+        initializeWalls(mode);
+        for (int i = 0; i < HEIGHT; i++) {
+            for (int j = 0; j < WIDTH; j++) {
+                if (obstacles[i][j] == Block.OBSTACLE) {
+                    BLOCKS[i][j] = Block.OBSTACLE;
+                }
+            }
+        }
+        initializeFields();
+        return BLOCKS;
+    }
+    private static void initializeWalls(Mode mode) {
         BLOCKS = new Block[HEIGHT][WIDTH];
         for (int i = 0; i < WIDTH; i ++) {
             BLOCKS[0][i] = Block.WALL;
@@ -20,12 +66,14 @@ public class GameFieldRepository {
             BLOCKS[i][0] = Block.WALL;
             BLOCKS[i][WIDTH - 1] = Block.WALL;
         }
-        switch (random.nextInt(3)) {
-            case 0 -> init1();
-            case 1 -> init2();
-            case 2 -> init3();
+
+        switch (mode) {
+            case FIRST -> init1();
+            case SECOND -> init2();
+            case THIRD -> init3();
         }
-        generateObstacles();
+    }
+    private static void initializeFields() {
         for (int i = 0; i < HEIGHT; i++) {
             for (int j = 0; j < WIDTH; j++) {
                 if (BLOCKS[i][j] == null) {
@@ -33,7 +81,6 @@ public class GameFieldRepository {
                 }
             }
         }
-        return BLOCKS;
     }
 
     private static void init1() {
@@ -285,7 +332,7 @@ public class GameFieldRepository {
         BLOCKS[7][8] = Block.CENTRAL;
     }
 
-    private static void generateObstacles() {
+    private static Block[][] generateObstacles() {
         int count = 0;
         Set<String> set = new HashSet<>();
         set.add("1 1");
@@ -304,10 +351,11 @@ public class GameFieldRepository {
         while (count != OBSTACLES_COUNT) {
             int i = random.nextInt(1, HEIGHT);
             int j = random.nextInt(1, WIDTH);
-            if (BLOCKS[i][j] != Block.WALL && BLOCKS[i][j] != Block.CENTRAL && !set.contains(i + " " + j)) {
+            if (BLOCKS[i][j] == null && BLOCKS[i][j] != Block.OBSTACLE && !set.contains(i + " " + j)) {
                 BLOCKS[i][j] = Block.OBSTACLE;
                 count++;
             }
         }
+        return BLOCKS;
     }
 }

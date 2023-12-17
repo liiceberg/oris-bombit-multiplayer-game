@@ -28,22 +28,13 @@ public class RoomRepository {
         return (InetAddress) rooms.get(room)[1];
     }
 
-
-    public static Block[][] getGameField(String room) {
-        try {
-            return dao.getField(room);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static String createRoom() {
         GameServer server = new GameServer();
         new Thread(server).start();
         String code = generateCode();
         rooms.put(code, new Object[]{server.getPort(), server.getAddress()});
         try {
-            dao.save(code, server.getPort(), server.getAddress(), GameFieldRepository.getGameField());
+            dao.save(code, server.getPort(), server.getAddress());
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

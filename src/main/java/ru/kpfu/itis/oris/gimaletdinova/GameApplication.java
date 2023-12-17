@@ -7,6 +7,8 @@ import ru.kpfu.itis.oris.gimaletdinova.client.ClientPlayer;
 import ru.kpfu.itis.oris.gimaletdinova.controller.GameController;
 import ru.kpfu.itis.oris.gimaletdinova.controller.GameWaitingViewController;
 import ru.kpfu.itis.oris.gimaletdinova.exceptions.RoomNotFoundException;
+import ru.kpfu.itis.oris.gimaletdinova.model.Block;
+import ru.kpfu.itis.oris.gimaletdinova.model.Mode;
 import ru.kpfu.itis.oris.gimaletdinova.model.message.*;
 import ru.kpfu.itis.oris.gimaletdinova.model.User;
 import ru.kpfu.itis.oris.gimaletdinova.model.message.messages.ConnectMessage;
@@ -29,6 +31,8 @@ public class GameApplication extends Application {
     private String room;
     private int[] characters;
     private String[] users;
+    private Block[][] gameFiled;
+    private Mode mode;
     public boolean isWin = true;
 
     @Override
@@ -119,4 +123,19 @@ public class GameApplication extends Application {
         return users;
     }
 
+    public Block[][] getGameFiled() {
+        return gameFiled;
+    }
+
+    public void setGameFiled(Block[][] gameFiled) {
+        this.gameFiled = gameFiled;
+    }
+
+    public Mode getMode() {
+        return mode;
+    }
+
+    public void setMode(Mode mode) {
+        this.mode = mode;
+    }
 }

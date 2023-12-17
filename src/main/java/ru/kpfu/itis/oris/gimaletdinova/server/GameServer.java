@@ -3,6 +3,7 @@ package ru.kpfu.itis.oris.gimaletdinova.server;
 import ru.kpfu.itis.oris.gimaletdinova.model.message.*;
 import ru.kpfu.itis.oris.gimaletdinova.model.message.messages.*;
 import ru.kpfu.itis.oris.gimaletdinova.util.CharacterFactory;
+import ru.kpfu.itis.oris.gimaletdinova.util.GameFieldRepository;
 import ru.kpfu.itis.oris.gimaletdinova.util.RoomRepository;
 
 import java.io.Closeable;
@@ -21,7 +22,7 @@ public class GameServer implements Closeable, Runnable {
     private final byte[] buffer = new byte[BUFFER_LENGTH];
     private final DatagramSocket socket;
     private final List<Client> players = new ArrayList<>();
-    public static final int PLAYERS_COUNT = 2;
+    public static final int PLAYERS_COUNT = 1;
     private final InetAddress address;
     private boolean isAlive = true;
 
@@ -124,6 +125,8 @@ public class GameServer implements Closeable, Runnable {
             users[i] = players.get(i).username;
             characters[i] = players.get(i).characterImg;
         }
+        GameFieldMessage gameFieldMessage = new GameFieldMessage(GameFieldRepository.generateGameField(), GameFieldRepository.getFieldMode(), GameFieldRepository.getObstaclesMode());
+        sendAll(gameFieldMessage);
         GameStartMessage gameStartMessage = new GameStartMessage(users, characters);
         sendAll(gameStartMessage);
     }

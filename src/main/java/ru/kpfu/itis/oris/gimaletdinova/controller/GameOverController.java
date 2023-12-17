@@ -39,11 +39,6 @@ public class GameOverController implements Controller {
     }
 
     public void onPlayButtonClicked() {
-        try {
-            RoomRepository.dao.updateField(getApplication().getRoom(), GameFieldRepository.getGameField());
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
         PlayAgainMessage playAgainMessage = new PlayAgainMessage();
         getApplication().getClientPlayer().send(playAgainMessage);
     }

@@ -6,6 +6,7 @@ import ru.kpfu.itis.oris.gimaletdinova.exceptions.RoomNotFoundException;
 import ru.kpfu.itis.oris.gimaletdinova.model.message.*;
 import ru.kpfu.itis.oris.gimaletdinova.model.message.messages.*;
 import ru.kpfu.itis.oris.gimaletdinova.util.ApplicationUtil;
+import ru.kpfu.itis.oris.gimaletdinova.util.GameFieldRepository;
 import ru.kpfu.itis.oris.gimaletdinova.util.RoomRepository;
 
 import java.io.*;
@@ -69,6 +70,17 @@ public class ClientPlayer implements Closeable {
             close();
             Platform.runLater(this::exit);
             return;
+        }
+        if (data[0] == GAME_FIELD.getValue()) {
+            GameFieldMessage gameFieldMessage = new GameFieldMessage(data);
+            application.setGameFiled(
+                    GameFieldRepository.getGameField(
+                            gameFieldMessage.getFieldMode(),
+                            gameFieldMessage.getObstacles()
+                    )
+            );
+            application.setMode(gameFieldMessage.getObstaclesMode());
+
         }
         if (data[0] == START_GAME.getValue()) {
             GameStartMessage message = new GameStartMessage(data);

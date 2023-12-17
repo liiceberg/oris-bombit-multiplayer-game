@@ -13,6 +13,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
+import ru.kpfu.itis.oris.gimaletdinova.model.Block;
+import ru.kpfu.itis.oris.gimaletdinova.model.Mode;
 import ru.kpfu.itis.oris.gimaletdinova.model.message.messages.AddBombMessage;
 import ru.kpfu.itis.oris.gimaletdinova.model.message.messages.LoseMessage;
 import ru.kpfu.itis.oris.gimaletdinova.model.message.messages.MoveMessage;
@@ -135,12 +137,14 @@ public class GameController implements Controller {
     }
 
     private void initGameField() {
-        blocks = RoomRepository.getGameField(ApplicationUtil.getApplication().getRoom());
+//        blocks = RoomRepository.getGameField(ApplicationUtil.getApplication().getRoom());
+        blocks = ApplicationUtil.getApplication().getGameFiled();
         blockSize = gridPane.getPrefHeight() / gridPane.getRowCount();
         blockBuilder = new BlockBuilder(blockSize);
+        Mode mode = ApplicationUtil.getApplication().getMode();
         for (int i = 0; i < gridPane.getRowCount(); i++) {
             for (int j = 0; j < gridPane.getColumnCount(); j++) {
-                gridPane.add(blockBuilder.getView(blocks[i][j]), j, i);
+                gridPane.add(blockBuilder.getView(blocks[i][j], mode), j, i);
             }
         }
     }
@@ -316,7 +320,7 @@ public class GameController implements Controller {
         p.title.setStyle("-fx-text-fill: red;");
         p.username.setStyle("-fx-text-fill: red;");
         gridPane.getChildren().remove(characters.get(p.position - 1));
-        if (++losersCount == players.size() - 1) {
+        if (++losersCount == players.size()) {
             updateTimer.stop();
             gameOver();
         }

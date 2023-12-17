@@ -9,7 +9,8 @@ public enum MessageType {
     DISCONNECT((byte) 5),
     JOIN_USER((byte) 6),
     PLAY_AGAIN((byte) 7),
-    CLOSE_ROOM((byte) 8);
+    CLOSE_ROOM((byte) 8),
+    GAME_FIELD((byte) 9);
     private final byte value;
     MessageType(byte value) {
         this.value = value;
