@@ -4,14 +4,10 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import ru.kpfu.itis.oris.gimaletdinova.model.message.messages.DisconnectMessage;
 import ru.kpfu.itis.oris.gimaletdinova.model.message.messages.PlayAgainMessage;
 import ru.kpfu.itis.oris.gimaletdinova.util.ApplicationUtil;
-import ru.kpfu.itis.oris.gimaletdinova.util.GameFieldRepository;
-import ru.kpfu.itis.oris.gimaletdinova.util.RoomRepository;
 
 import java.io.IOException;
-import java.sql.SQLException;
 
 import static ru.kpfu.itis.oris.gimaletdinova.util.ApplicationUtil.getApplication;
 

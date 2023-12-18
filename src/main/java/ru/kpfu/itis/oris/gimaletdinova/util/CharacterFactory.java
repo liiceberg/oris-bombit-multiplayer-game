@@ -25,4 +25,7 @@ public class CharacterFactory {
         characters.add(number);
         return number;
     }
+    public static void remove(Integer i) {
+        characters.remove(i);
+    }
 }

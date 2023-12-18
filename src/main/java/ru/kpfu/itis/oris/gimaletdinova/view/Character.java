@@ -8,7 +8,6 @@ import ru.kpfu.itis.oris.gimaletdinova.animation.SpriteAnimation;
 import javafx.util.Duration;
 
 public class Character extends Pane {
-    private final ImageView imageView;
     private static final int COUNT = 4;
     private static final int COLUMNS = 4;
     private static final int WIDTH = 48;
@@ -16,8 +15,7 @@ public class Character extends Pane {
     private final SpriteAnimation animation;
 
     public Character(ImageView imageView, double size) {
-        this.imageView = imageView;
-        setSettings(this.imageView, size);
+        setSettings(imageView, size);
         animation = new SpriteAnimation(imageView, Duration.millis(200), COUNT, COLUMNS, 0, 0, WIDTH, HEIGHT);
         getChildren().add(imageView);
     }
@@ -63,9 +61,5 @@ public class Character extends Pane {
 
     public double getPlayerTranslateY() {
         return getTranslateY();
-    }
-
-    public ImageView getImageView() {
-        return imageView;
     }
 }

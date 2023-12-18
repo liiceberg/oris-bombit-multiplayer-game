@@ -8,12 +8,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class GameStartMessage extends Message {
-    private String[] users;
     private int[] characters;
 
-    public GameStartMessage(String[] users, int[] characters) {
+    public GameStartMessage(int[] characters) {
         super(MessageType.START_GAME);
-        this.users = users;
         this.characters = characters;
         setContent();
     }
@@ -25,28 +23,11 @@ public class GameStartMessage extends Message {
     @Override
     protected void getContent() {
         ByteBuffer buffer = ByteBuffer.wrap(content);
-        ArrayList<String> users = new ArrayList<>();
         ArrayList<Integer> characters = new ArrayList<>();
-        StringBuilder builder = new StringBuilder();
-        char c;
-        while ((c = buffer.getChar()) != Character.MIN_VALUE) {
-            while (c != Character.MIN_VALUE) {
-                builder.append(c);
-                c = buffer.getChar();
-            }
-            users.add(builder.toString());
-            builder = new StringBuilder();
-        }
-        this.users = new String[users.size()];
-        for (int i = 0; i < users.size(); i++) {
-            this.users[i] = users.get(i);
-        }
-
         int i;
-        while ((i = buffer.getInt()) != 0 && buffer.hasRemaining()) {
+        while (buffer.hasRemaining() && (i = buffer.getInt()) != Integer.MIN_VALUE) {
             characters.add(i);
         }
-
         this.characters = new int[characters.size()];
         for (i = 0; i < characters.size(); i++) {
             this.characters[i] = characters.get(i);
@@ -55,27 +36,13 @@ public class GameStartMessage extends Message {
 
     @Override
     protected void setContent() {
-        int capacity = 0;
-        for (String u: users) {
-            capacity += u.length() + 1;
-        }
-        ByteBuffer buffer = ByteBuffer.allocate(capacity * 2 + characters.length * 4 + 2);
-        for (String u: users) {
-            for (char c: u.toCharArray()) {
-                buffer.putChar(c);
-            }
-            buffer.putChar(Character.MIN_VALUE);
-        }
-        buffer.putChar(Character.MIN_VALUE);
+        ByteBuffer buffer = ByteBuffer.allocate(characters.length * 4 + 4);
         for (int c: characters) {
+            System.out.println(c);
             buffer.putInt(c);
         }
+        buffer.putInt(Integer.MIN_VALUE);
         content = buffer.array();
-//        max 146
-    }
-
-    public String[] getUsers() {
-        return users;
     }
 
     public int[] getCharacters() {

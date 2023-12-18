@@ -6,7 +6,7 @@ import javafx.stage.Stage;
 import ru.kpfu.itis.oris.gimaletdinova.client.ClientPlayer;
 import ru.kpfu.itis.oris.gimaletdinova.controller.GameController;
 import ru.kpfu.itis.oris.gimaletdinova.controller.GameWaitingViewController;
-import ru.kpfu.itis.oris.gimaletdinova.exceptions.RoomNotFoundException;
+import ru.kpfu.itis.oris.gimaletdinova.controller.JoinController;
 import ru.kpfu.itis.oris.gimaletdinova.model.Block;
 import ru.kpfu.itis.oris.gimaletdinova.model.Mode;
 import ru.kpfu.itis.oris.gimaletdinova.model.message.*;
@@ -16,6 +16,9 @@ import ru.kpfu.itis.oris.gimaletdinova.model.message.messages.DisconnectMessage;
 import ru.kpfu.itis.oris.gimaletdinova.util.ApplicationUtil;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 import static ru.kpfu.itis.oris.gimaletdinova.util.ApplicationUtil.getApplication;
 
@@ -26,14 +29,15 @@ public class GameApplication extends Application {
 
     public GameController gameController;
     public GameWaitingViewController gameWaitingViewController;
+    public JoinController joinController;
     private ClientPlayer clientPlayer;
     private User user;
     private String room;
     private int[] characters;
-    private String[] users;
+    public List<String> usersList = new ArrayList<>();
     private Block[][] gameFiled;
     private Mode mode;
-    public boolean isWin = true;
+    public boolean isWin;
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -62,12 +66,7 @@ public class GameApplication extends Application {
     }
 
     public boolean initClientPlayer(String room) {
-        gameWaitingViewController = new GameWaitingViewController();
-        try {
-            clientPlayer = new ClientPlayer(this, room);
-        } catch (RoomNotFoundException e) {
-            return false;
-        }
+        clientPlayer = new ClientPlayer(this, room);
         Message message = new ConnectMessage(user.getUsername(), clientPlayer.getPort(), clientPlayer.getAddress());
         clientPlayer.send(message);
         this.room = room;
@@ -86,14 +85,14 @@ public class GameApplication extends Application {
         return room;
     }
 
-    public void startGame(String[] users, int[] characters) {
+    public void startGame(int[] characters) {
         this.characters = characters;
-        this.users = users;
         Platform.runLater(this::startGame);
     }
 
     public void startGame() {
         try {
+            isWin = true;
             gameController = new GameController();
             ApplicationUtil.loadAndShowFXML("/fxml/game-view.fxml", gameController);
         } catch (IOException e) {
@@ -102,8 +101,17 @@ public class GameApplication extends Application {
     }
 
     public void waitPlayers() {
+        gameWaitingViewController = new GameWaitingViewController();
         try {
             ApplicationUtil.loadAndShowFXML("/fxml/game-waiting-view.fxml", gameWaitingViewController);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void join() {
+        try {
+            joinController = new JoinController();
+            ApplicationUtil.loadAndShowFXML("/fxml/join-view.fxml", joinController);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -119,8 +127,8 @@ public class GameApplication extends Application {
         return characters;
     }
 
-    public String[] getUsers() {
-        return users;
+    public List<String> getUsers() {
+        return usersList;
     }
 
     public Block[][] getGameFiled() {

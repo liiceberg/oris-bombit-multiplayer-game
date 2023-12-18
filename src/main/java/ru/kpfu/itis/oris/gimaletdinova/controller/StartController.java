@@ -17,9 +17,9 @@ public class StartController implements Controller {
     private TextField username;
 
     @FXML
-    protected void onJoinButtonClick() throws IOException {
+    protected void onJoinButtonClick() {
         if (validateUsername()) {
-            ApplicationUtil.loadAndShowFXML("/fxml/join-view.fxml");
+            ApplicationUtil.getApplication().join();
         }
     }
 

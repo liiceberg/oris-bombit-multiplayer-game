@@ -42,7 +42,7 @@ public class GameController implements Controller {
     private BlockBuilder blockBuilder;
 
     @FXML
-    private AnchorPane anchorPane;
+    private AnchorPane  anchorPane;
 
     @FXML
     private GridPane gridPane;
@@ -54,10 +54,10 @@ public class GameController implements Controller {
     }
 
     private void initAll() {
-        String[] users = ApplicationUtil.getApplication().getUsers();
+        List<String> users = ApplicationUtil.getApplication().getUsers();
         int[] characters = ApplicationUtil.getApplication().getCharacters();
-        for (int i = 0; i < users.length; i++) {
-            Player p = new Player(i + 1, users[i], characters[i]);
+        for (int i = 0; i < users.size(); i++) {
+            Player p = new Player(i + 1, users.get(i), characters[i]);
             players.add(p);
         }
         initRoom();
@@ -78,6 +78,7 @@ public class GameController implements Controller {
     public void updatePlayer() {
         if (blocks[getRowIndex(player)][getColumnIndex(player)] == Block.FIRE) {
             updateTimer.stop();
+            anchorPane.getScene().setOnKeyPressed(null);
             removeCharacter(playerPosition);
             LoseMessage loseMessage = new LoseMessage(playerPosition);
             ApplicationUtil.getApplication().getClientPlayer().send(loseMessage);
@@ -137,7 +138,6 @@ public class GameController implements Controller {
     }
 
     private void initGameField() {
-//        blocks = RoomRepository.getGameField(ApplicationUtil.getApplication().getRoom());
         blocks = ApplicationUtil.getApplication().getGameFiled();
         blockSize = gridPane.getPrefHeight() / gridPane.getRowCount();
         blockBuilder = new BlockBuilder(blockSize);
@@ -320,7 +320,7 @@ public class GameController implements Controller {
         p.title.setStyle("-fx-text-fill: red;");
         p.username.setStyle("-fx-text-fill: red;");
         gridPane.getChildren().remove(characters.get(p.position - 1));
-        if (++losersCount == players.size()) {
+        if (++losersCount == players.size() - 1) {
             updateTimer.stop();
             gameOver();
         }

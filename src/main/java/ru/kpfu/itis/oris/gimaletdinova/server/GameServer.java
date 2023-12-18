@@ -18,11 +18,11 @@ import static ru.kpfu.itis.oris.gimaletdinova.model.message.MessageType.*;
 
 public class GameServer implements Closeable, Runnable {
     private final int port;
-    public static final int BUFFER_LENGTH = 200;
+    public static final int BUFFER_LENGTH = 160;
     private final byte[] buffer = new byte[BUFFER_LENGTH];
     private final DatagramSocket socket;
     private final List<Client> players = new ArrayList<>();
-    public static final int PLAYERS_COUNT = 1;
+    public static final int PLAYERS_COUNT = 3;
     private final InetAddress address;
     private boolean isAlive = true;
 
@@ -58,11 +58,19 @@ public class GameServer implements Closeable, Runnable {
         }
         if (data[0] == DISCONNECT.getValue()) {
             DisconnectMessage disconnectMessage = new DisconnectMessage(data);
+            Client deleted = players.remove(disconnectMessage.getPlayerPosition() - 1);
+            CharacterFactory.remove(deleted.characterImg);
             if (disconnectMessage.getPlayerPosition() == 1) {
                 isAlive = false;
                 RoomClosedMessage message = new RoomClosedMessage();
                 sendAll(message);
                 close();
+            } else {
+                sendAll(disconnectMessage);
+                for (int i = 1; i < players.size(); i++) {
+                    ConnectResponseMessage connectResponseMessage = new ConnectResponseMessage(i + 1);
+                    sendMessage(connectResponseMessage, players.get(i));
+                }
             }
             return;
         }
@@ -86,6 +94,7 @@ public class GameServer implements Closeable, Runnable {
         }
         if (data[0] == LOSE.getValue()) {
             LoseMessage loseMessage = new LoseMessage(data);
+            System.out.println("server " + loseMessage.getPlayerPosition());
             for (int i = 0; i < players.size(); i++) {
                 if (loseMessage.getPlayerPosition() != i + 1) {
                     sendMessage(loseMessage, players.get(i));
@@ -94,13 +103,18 @@ public class GameServer implements Closeable, Runnable {
             return;
         }
         if (data[0] == PLAY_AGAIN.getValue()) {
-            sendStartMessage();
+            if (players.size() == PLAYERS_COUNT) {
+                sendStartMessage();
+            } else {
+                sendAll(new PlayAgainMessage());
+            }
         }
     }
 
     private void addPlayer(ConnectMessage message) {
-        if (players.size() + 1 <= PLAYERS_COUNT) {
-            Client client = new Client(message.getAddress(), message.getPort(), message.getUsername());
+        Client client = new Client(message.getAddress(), message.getPort(), message.getUsername());
+        if (players.size() < PLAYERS_COUNT) {
+            client.setCharacterImg();
             sendCurrentUsers(client);
             players.add(client);
             ConnectResponseMessage responseMessage = new ConnectResponseMessage(players.size());
@@ -110,6 +124,9 @@ public class GameServer implements Closeable, Runnable {
             if (players.size() == PLAYERS_COUNT) {
                 sendStartMessage();
             }
+        } else {
+            FullRoomMessage fullRoomMessage = new FullRoomMessage();
+            sendMessage(fullRoomMessage, client);
         }
     }
     private void sendCurrentUsers(Client client) {
@@ -119,15 +136,17 @@ public class GameServer implements Closeable, Runnable {
         }
     }
     private void sendStartMessage() {
-        String[] users = new String[PLAYERS_COUNT];
         int[] characters = new int[PLAYERS_COUNT];
         for (int i = 0; i < players.size(); i++) {
-            users[i] = players.get(i).username;
             characters[i] = players.get(i).characterImg;
         }
-        GameFieldMessage gameFieldMessage = new GameFieldMessage(GameFieldRepository.generateGameField(), GameFieldRepository.getFieldMode(), GameFieldRepository.getObstaclesMode());
+        GameFieldMessage gameFieldMessage = new GameFieldMessage(
+                GameFieldRepository.generateGameField(),
+                GameFieldRepository.getFieldMode(),
+                GameFieldRepository.getObstaclesMode()
+        );
         sendAll(gameFieldMessage);
-        GameStartMessage gameStartMessage = new GameStartMessage(users, characters);
+        GameStartMessage gameStartMessage = new GameStartMessage(characters);
         sendAll(gameStartMessage);
     }
 
@@ -169,12 +188,15 @@ public class GameServer implements Closeable, Runnable {
         private final InetAddress clientAddress;
         private final int clientPort;
         private final String username;
-        private final int characterImg;
+        private int characterImg;
 
         public Client(InetAddress address, int port, String username) {
             clientAddress = address;
             clientPort = port;
             this.username = username;
+        }
+
+        public void setCharacterImg() {
             characterImg = CharacterFactory.getNumber();
         }
     }

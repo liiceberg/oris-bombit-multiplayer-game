@@ -13,6 +13,7 @@ public class Dao {
     private final String SELECT_SQL = "select * from rooms;";
     private final String SAVE_SQL = "insert into rooms(code, port, address) values(?, ?, ?);";
     private final String DELETE_SQL = "delete from rooms where port=?;";
+    private final String EXIST_SQL = "select 1 from rooms where code=?;";
 
     public Map<String, Object[]> getAll() throws SQLException {
         Statement statement = connection.createStatement();
@@ -43,6 +44,13 @@ public class Dao {
         PreparedStatement statement = connection.prepareStatement(DELETE_SQL);
         statement.setInt(1, port);
         statement.executeUpdate();
+    }
+
+    public boolean isRoomExist(String code) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement(EXIST_SQL);
+        statement.setString(1, code);
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet.next();
     }
 
 }
