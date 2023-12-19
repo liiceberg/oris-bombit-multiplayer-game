@@ -7,11 +7,11 @@
       xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="ru.kpfu.itis.oris.gimaletdinova.controller.GameOverController">
 
-    <Label fx:id="title" styleClass="text"/>
+    <Label fx:id="title" styleClass="custom-text"/>
 
-    <Button fx:id="playButton" prefHeight="43.0" prefWidth="273.0" text="Play again" onAction="#onPlayButtonClicked"/>
+    <Button fx:id="playButton" styleClass="button-text" prefHeight="43.0" prefWidth="273.0" text="Play again" onAction="#onPlayButtonClicked"/>
 
-    <Button layoutX="164.0" layoutY="332.0" prefHeight="43.0" prefWidth="273.0" text="Exit"
+    <Button layoutX="164.0" layoutY="332.0" styleClass="button-text" prefHeight="43.0" prefWidth="273.0" text="Exit"
             onAction="#onExitButtonClicked"/>
 
 </VBox>

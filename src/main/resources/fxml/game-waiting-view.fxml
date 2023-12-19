@@ -5,13 +5,13 @@
 
 <AnchorPane id="background" prefHeight="525.0" prefWidth="750.0" stylesheets="@../css/styles.css"
             xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
-    <Label styleClass="text" text="ROOM:" AnchorPane.leftAnchor="16" AnchorPane.topAnchor="16"/>
-    <Label fx:id="code" layoutX="79.0" layoutY="16.0" styleClass="text" AnchorPane.leftAnchor="79.0"
+    <Label styleClass="custom-text" text="ROOM:" AnchorPane.leftAnchor="16" AnchorPane.topAnchor="16"/>
+    <Label fx:id="code" layoutX="79.0" layoutY="16.0" styleClass="custom-text" AnchorPane.leftAnchor="79.0"
            AnchorPane.topAnchor="16.0"/>
-    <Label fx:id="main" layoutX="270.0" layoutY="250.0" styleClass="text" text="Expecting all players"/>
+    <Label fx:id="main" layoutX="270.0" layoutY="250.0" styleClass="custom-text" text="Expecting all players"/>
     <Label fx:id="roomFullError" layoutX="289.0" layoutY="250.0" styleClass="error-text" text="Room already full"
            visible="false"/>
-    <VBox fx:id="usersBox" layoutY="52.0" prefHeight="198.0" prefWidth="210.0" styleClass="text"
+    <VBox fx:id="usersBox" layoutY="52.0" prefHeight="198.0" prefWidth="210.0" styleClass="custom-text"
           AnchorPane.leftAnchor="16"/>
-    <Button fx:id="exit" layoutX="678.0" layoutY="12.0" text="Exit"/>
+    <Button fx:id="exit" styleClass="button-text" layoutX="678.0" layoutY="12.0" text="Exit"/>
 </AnchorPane>
