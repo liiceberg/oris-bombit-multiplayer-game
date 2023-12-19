@@ -56,7 +56,7 @@ public class GameController implements Controller {
     private void initAll() {
         List<String> users = ApplicationUtil.getApplication().getUsers();
         int[] characters = ApplicationUtil.getApplication().getCharacters();
-        for (int i = 0; i < users.size(); i++) {
+        for (int i = 0; i < characters.length; i++) {
             Player p = new Player(i + 1, users.get(i), characters[i]);
             players.add(p);
         }

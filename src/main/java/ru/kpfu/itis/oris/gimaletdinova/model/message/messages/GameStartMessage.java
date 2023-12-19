@@ -38,7 +38,6 @@ public class GameStartMessage extends Message {
     protected void setContent() {
         ByteBuffer buffer = ByteBuffer.allocate(characters.length * 4 + 4);
         for (int c: characters) {
-            System.out.println(c);
             buffer.putInt(c);
         }
         buffer.putInt(Integer.MIN_VALUE);

@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class RoomRepository {
+    private static final int CODE_LENGTH = 4;
     public static final Dao dao = new Dao();
     private static final Random random = new Random();
     private static final Map<String, Object[]> rooms;
@@ -21,16 +22,37 @@ public class RoomRepository {
     }
 
     public static Integer getPort(String room) {
-        return rooms.containsKey(room) ? (Integer) rooms.get(room)[0] : null;
+        if (exist(room)) {
+            return (Integer) rooms.get(room)[0];
+        } else {
+            update(room);
+            return getPort(room);
+        }
+    }
+
+    public static void update(String code) {
+        try {
+            rooms.put(code, dao.get(code));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static InetAddress getAddress(String room) {
-        return (InetAddress) rooms.get(room)[1];
+        if (exist(room)) {
+            return (InetAddress) rooms.get(room)[1];
+        } else {
+            update(room);
+            return getAddress(room);
+        }
+    }
+
+    private static boolean exist(String room) {
+        return rooms.containsKey(room);
     }
 
     public static String createRoom() {
         GameServer server = new GameServer();
-        new Thread(server).start();
         String code = generateCode();
         rooms.put(code, new Object[]{server.getPort(), server.getAddress()});
         try {
@@ -46,7 +68,7 @@ public class RoomRepository {
         String code;
         do {
             builder = new StringBuilder();
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < CODE_LENGTH; i++) {
                 builder.append(getSymbol());
             }
             code = builder.toString();

@@ -2,19 +2,12 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 
-<AnchorPane id="background" prefHeight="525.0" prefWidth="750.0" stylesheets="@../css/styles.css"
-            xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="ru.kpfu.itis.oris.gimaletdinova.controller.StartController">
-    <Label layoutX="352.0" layoutY="118.0" styleClass="title" text="Bomb It"/>
-    <Label layoutX="233.0" layoutY="248.0" prefHeight="30.0" prefWidth="144.0" styleClass="text" text="Username:"/>
-    <TextField fx:id="username" layoutX="352.0" layoutY="243.0" prefHeight="40.0" prefWidth="189.0" styleClass="text"
-               text="user"/>
-    <Label fx:id="input_error" layoutX="141.0" layoutY="295.0" prefHeight="25.0" prefWidth="532.0"
-           styleClass="error-text" text="Username must be from 3 to 15 characters long" visible="false"/>
-    <Button fx:id="create" layoutX="138.0" layoutY="355.0" onAction="#onCreateButtonClick" prefHeight="52.0"
-            prefWidth="473.0" text="Create new room"/>
-    <Button fx:id="join" layoutX="138.0" layoutY="424.0" onAction="#onJoinButtonClick" prefHeight="52.0"
-            prefWidth="473.0" text="Join existing room"/>
+<AnchorPane id="background" prefHeight="525.0" prefWidth="750.0" stylesheets="@../css/styles.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.kpfu.itis.oris.gimaletdinova.controller.StartController">
+    <Label layoutX="352.0" layoutY="118.0" styleClass="title" text="Bomb It" />
+    <Label layoutX="233.0" layoutY="248.0" prefHeight="30.0" prefWidth="144.0" styleClass="text" text="Username:" />
+    <TextField fx:id="username" layoutX="352.0" layoutY="243.0" prefHeight="40.0" prefWidth="189.0" styleClass="text" text="user" />
+    <Label fx:id="input_error" layoutX="177.0" layoutY="293.0" prefHeight="25.0" prefWidth="482.0" styleClass="error-text" text="Username must be from 3 to 15 characters long" visible="false" />
+    <Button fx:id="create" layoutX="138.0" layoutY="355.0" onAction="#onCreateButtonClick" prefHeight="52.0" prefWidth="473.0" text="Create new room" />
+    <Button fx:id="join" layoutX="138.0" layoutY="424.0" onAction="#onJoinButtonClick" prefHeight="52.0" prefWidth="473.0" text="Join existing room" />
 </AnchorPane>

@@ -44,11 +44,9 @@ public class GameFieldMessage extends Message {
         ByteBuffer buffer = ByteBuffer.allocate(1 + 1 + OBSTACLES_COUNT * 2);
         buffer.put(fieldMode.getValue());
         buffer.put(obstaclesMode.getValue());
-        int c = 0;
         for (byte i = 0; i < obstacles.length; i++) {
             for (byte j = 0; j < obstacles[0].length; j++) {
                 if (obstacles[i][j] == Block.OBSTACLE) {
-                    c++;
                     buffer.put(i);
                     buffer.put(j);
                 }

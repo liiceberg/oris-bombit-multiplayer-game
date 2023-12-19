@@ -8,22 +8,21 @@
 }
 
 .title {
-    -fx-font-size: 48px;
     -fx-font-family: "Pixelify Sans Bold";
     -fx-text-fill: grey;
-
+    -fx-font-size: 48px;
 }
 
 .text {
     -fx-font-family: "Pixelify Sans Medium";
-    -fx-font-size: 20px;
     -fx-text-fill: grey;
+    -fx-font-size: 20px;
 }
 
 .error-text {
-    -fx-font-size: 12px;
     -fx-font-family: "Pixelify Sans Medium";
     -fx-text-fill: red;
+    -fx-font-size: 12px;
 }
 
 #background{

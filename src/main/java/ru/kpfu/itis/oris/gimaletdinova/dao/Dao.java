@@ -11,6 +11,7 @@ import java.util.Map;
 public class Dao {
     private final Connection connection = DatabaseConnection.getConnection();
     private final String SELECT_SQL = "select * from rooms;";
+    private final String SELECT_ROOM_SQL = "select * from rooms where code=?;";
     private final String SAVE_SQL = "insert into rooms(code, port, address) values(?, ?, ?);";
     private final String DELETE_SQL = "delete from rooms where port=?;";
     private final String EXIST_SQL = "select 1 from rooms where code=?;";
@@ -51,6 +52,21 @@ public class Dao {
         statement.setString(1, code);
         ResultSet resultSet = statement.executeQuery();
         return resultSet.next();
+    }
+
+    public Object[] get(String code) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement(SELECT_ROOM_SQL);
+        statement.setString(1, code);
+        ResultSet resultSet = statement.executeQuery();
+        Object[] data = new Object[2];
+        resultSet.next();
+        data[0] = resultSet.getInt("port");
+        try {
+            data[1] = InetAddress.getByName(resultSet.getString("address"));
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
+        return data;
     }
 
 }

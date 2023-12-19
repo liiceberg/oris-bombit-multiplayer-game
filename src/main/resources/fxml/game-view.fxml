@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane fx:id="anchorPane" id="game-field" prefHeight="525.0" prefWidth="750.0" stylesheets="@../css/styles.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane id="game-field" fx:id="anchorPane" prefHeight="525.0" prefWidth="750.0" stylesheets="@../css/styles.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
 
     <Label text="Room:" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="16.0" />
     <Label fx:id="code" AnchorPane.leftAnchor="76" AnchorPane.topAnchor="16" />
-    <GridPane fx:id="gridPane" layoutX="155.0" prefHeight="510.0" prefWidth="578.0">
+    <GridPane fx:id="gridPane" layoutX="155.0" layoutY="8.0" prefHeight="510.0" prefWidth="578.0">
         <columnConstraints>
             <ColumnConstraints halignment="CENTER" hgrow="NEVER" prefWidth="100.0" />
             <ColumnConstraints halignment="CENTER" hgrow="NEVER" prefWidth="100.0" />
@@ -46,7 +45,7 @@
             <RowConstraints prefHeight="100.0" valignment="CENTER" vgrow="NEVER" />
         </rowConstraints>
     </GridPane>
-    <VBox fx:id="infoBox" layoutY="46.0" prefHeight="480.0" prefWidth="155.0" alignment="CENTER">
+    <VBox fx:id="infoBox" alignment="CENTER" layoutY="46.0" prefHeight="480.0" prefWidth="155.0">
 
     </VBox>
 

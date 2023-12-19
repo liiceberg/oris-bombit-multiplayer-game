@@ -15,7 +15,6 @@ import java.util.Queue;
 
 import static ru.kpfu.itis.oris.gimaletdinova.model.message.MessageType.*;
 import static ru.kpfu.itis.oris.gimaletdinova.server.GameServer.BUFFER_LENGTH;
-import static ru.kpfu.itis.oris.gimaletdinova.util.ApplicationUtil.getApplication;
 
 public class ClientPlayer implements Closeable {
     private final GameApplication application;
@@ -46,34 +45,30 @@ public class ClientPlayer implements Closeable {
             byte[] data = message.getByteContent();
             DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
             socket.send(packet);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (IOException ignored) {
         }
     }
 
     private void parseMessage(byte[] data) throws IOException, ClassNotFoundException {
         if (data[0] == CONNECT.getValue()) {
             ConnectResponseMessage message = new ConnectResponseMessage(data);
-            System.out.println("CUR POS " + message.getPosition());
             application.getUser().setPosition(message.getPosition());
             return;
         }
         if (data[0] == JOIN_USER.getValue()) {
             UserJoinMessage userJoinMessage = new UserJoinMessage(data);
-            application.usersList.add(userJoinMessage.getUsername());
-
+            application.getUsers().add(userJoinMessage.getUsername());
             Platform.runLater(this::updatePlayersList);
-
             return;
         }
         if (data[0] == DISCONNECT.getValue()) {
             DisconnectMessage disconnectMessage = new DisconnectMessage(data);
-            application.usersList.remove(disconnectMessage.getPlayerPosition() - 1);
+            application.getUsers().remove(disconnectMessage.getPlayerPosition() - 1);
             Platform.runLater(this::updatePlayersList);
             return;
         }
         if (data[0] == CLOSE_ROOM.getValue()) {
-            close();
+            application.getUsers().clear();
             Platform.runLater(this::exit);
             return;
         }
@@ -112,13 +107,13 @@ public class ClientPlayer implements Closeable {
             Platform.runLater(this::playAgain);
         }
         if (data[0] == FULL_ROOM.getValue()) {
-            application.joinController.isRoomFull = true;
-            System.out.println("room full");
+            application.isRoomFull = true;
+            application.getUser().setPosition(-1);
         }
     }
 
     private void updatePlayersList() {
-       application.gameWaitingViewController.updatePlayers();
+        application.gameWaitingViewController.updatePlayers();
     }
 
     private void exit() {
@@ -129,25 +124,31 @@ public class ClientPlayer implements Closeable {
             throw new RuntimeException(e);
         }
     }
+
     private void playAgain() {
         application.waitPlayers();
         application.gameWaitingViewController.updatePlayers();
     }
 
     private void move() {
-        MoveMessage m = moveMessages.remove();
-        ApplicationUtil.getApplication().gameController.moveCharacter(m.getPlayerPosition(), m.getCode());
+        MoveMessage m = moveMessages.poll();
+        if (m != null) {
+            ApplicationUtil.getApplication().gameController.moveCharacter(m.getPlayerPosition(), m.getCode());
+        }
     }
 
     private void addBomb() {
-        AddBombMessage m = addBombMessages.remove();
-        ApplicationUtil.getApplication().gameController.addBomb(m.getX(), m.getY());
+        AddBombMessage m = addBombMessages.poll();
+        if (m != null) {
+            ApplicationUtil.getApplication().gameController.addBomb(m.getX(), m.getY());
+        }
     }
 
     private void lose() {
-        LoseMessage m = loseMessages.remove();
-        System.out.println("client " + m.getPlayerPosition());
-        ApplicationUtil.getApplication().gameController.removeCharacter(m.getPlayerPosition());
+        LoseMessage m = loseMessages.poll();
+        if (m != null) {
+            ApplicationUtil.getApplication().gameController.removeCharacter(m.getPlayerPosition());
+        }
     }
 
 
@@ -186,7 +187,7 @@ public class ClientPlayer implements Closeable {
                     byte[] data = packet.getData();
                     clientPlayer.parseMessage(data);
                 } catch (IOException | ClassNotFoundException e) {
-                    throw new RuntimeException(e);
+                    return;
                 }
             }
         }

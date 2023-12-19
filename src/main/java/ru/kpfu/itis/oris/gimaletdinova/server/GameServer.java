@@ -16,13 +16,13 @@ import java.util.*;
 
 import static ru.kpfu.itis.oris.gimaletdinova.model.message.MessageType.*;
 
-public class GameServer implements Closeable, Runnable {
+public class GameServer implements Closeable {
     private final int port;
     public static final int BUFFER_LENGTH = 160;
     private final byte[] buffer = new byte[BUFFER_LENGTH];
     private final DatagramSocket socket;
     private final List<Client> players = new ArrayList<>();
-    public static final int PLAYERS_COUNT = 3;
+    public static final int PLAYERS_COUNT = 4;
     private final InetAddress address;
     private boolean isAlive = true;
 
@@ -31,23 +31,10 @@ public class GameServer implements Closeable, Runnable {
             socket = new DatagramSocket();
             port = socket.getLocalPort();
             address = InetAddress.getLocalHost();
+            new Thread(new Listener()).start();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public void run() {
-        try {
-            while (isAlive) {
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-                socket.receive(packet);
-                parseMessage(packet.getData());
-            }
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-
     }
 
     private void parseMessage(byte[] data) throws IOException, ClassNotFoundException {
@@ -58,18 +45,20 @@ public class GameServer implements Closeable, Runnable {
         }
         if (data[0] == DISCONNECT.getValue()) {
             DisconnectMessage disconnectMessage = new DisconnectMessage(data);
-            Client deleted = players.remove(disconnectMessage.getPlayerPosition() - 1);
-            CharacterFactory.remove(deleted.characterImg);
-            if (disconnectMessage.getPlayerPosition() == 1) {
-                isAlive = false;
-                RoomClosedMessage message = new RoomClosedMessage();
-                sendAll(message);
-                close();
-            } else {
-                sendAll(disconnectMessage);
-                for (int i = 1; i < players.size(); i++) {
-                    ConnectResponseMessage connectResponseMessage = new ConnectResponseMessage(i + 1);
-                    sendMessage(connectResponseMessage, players.get(i));
+            if (disconnectMessage.getPlayerPosition() != -1) {
+                Client deleted = players.remove(disconnectMessage.getPlayerPosition() - 1);
+                CharacterFactory.remove(deleted.characterImg);
+                if (disconnectMessage.getPlayerPosition() == 1) {
+                    isAlive = false;
+                    RoomClosedMessage message = new RoomClosedMessage();
+                    sendAll(message);
+                    close();
+                } else {
+                    sendAll(disconnectMessage);
+                    for (int i = 1; i < players.size(); i++) {
+                        ConnectResponseMessage connectResponseMessage = new ConnectResponseMessage(i + 1);
+                        sendMessage(connectResponseMessage, players.get(i));
+                    }
                 }
             }
             return;
@@ -94,7 +83,6 @@ public class GameServer implements Closeable, Runnable {
         }
         if (data[0] == LOSE.getValue()) {
             LoseMessage loseMessage = new LoseMessage(data);
-            System.out.println("server " + loseMessage.getPlayerPosition());
             for (int i = 0; i < players.size(); i++) {
                 if (loseMessage.getPlayerPosition() != i + 1) {
                     sendMessage(loseMessage, players.get(i));
@@ -198,6 +186,22 @@ public class GameServer implements Closeable, Runnable {
 
         public void setCharacterImg() {
             characterImg = CharacterFactory.getNumber();
+        }
+    }
+
+    private class Listener implements Runnable {
+        @Override
+        public void run() {
+            try {
+                while (isAlive) {
+                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+                    socket.receive(packet);
+                    parseMessage(packet.getData());
+                }
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+
         }
     }
 

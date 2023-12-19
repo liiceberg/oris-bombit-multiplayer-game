@@ -3,6 +3,7 @@ package ru.kpfu.itis.oris.gimaletdinova;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import ru.kpfu.itis.oris.gimaletdinova.client.ClientPlayer;
 import ru.kpfu.itis.oris.gimaletdinova.controller.GameController;
 import ru.kpfu.itis.oris.gimaletdinova.controller.GameWaitingViewController;
@@ -17,7 +18,6 @@ import ru.kpfu.itis.oris.gimaletdinova.util.ApplicationUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import static ru.kpfu.itis.oris.gimaletdinova.util.ApplicationUtil.getApplication;
@@ -26,7 +26,6 @@ public class GameApplication extends Application {
     public static void main(String[] args) {
         launch();
     }
-
     public GameController gameController;
     public GameWaitingViewController gameWaitingViewController;
     public JoinController joinController;
@@ -34,10 +33,11 @@ public class GameApplication extends Application {
     private User user;
     private String room;
     private int[] characters;
-    public List<String> usersList = new ArrayList<>();
+    private final List<String> usersList = new ArrayList<>();
     private Block[][] gameFiled;
     private Mode mode;
     public boolean isWin;
+    public boolean isRoomFull = false;
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -54,7 +54,7 @@ public class GameApplication extends Application {
 
         ApplicationUtil.setApplication(this);
 
-//        stage.initStyle(StageStyle.UNDECORATED);
+        stage.initStyle(StageStyle.UNDECORATED);
         stage.setTitle("BOMB IT");
         ApplicationUtil.loadAndShowFXML("/fxml/start-view.fxml");
 
@@ -65,12 +65,11 @@ public class GameApplication extends Application {
         return clientPlayer;
     }
 
-    public boolean initClientPlayer(String room) {
+    public void initClientPlayer(String room) {
         clientPlayer = new ClientPlayer(this, room);
         Message message = new ConnectMessage(user.getUsername(), clientPlayer.getPort(), clientPlayer.getAddress());
         clientPlayer.send(message);
         this.room = room;
-        return true;
     }
 
     public User getUser() {
@@ -121,6 +120,8 @@ public class GameApplication extends Application {
         clientPlayer.send(message);
         clientPlayer.close();
         clientPlayer = null;
+        usersList.clear();
+        isRoomFull = false;
     }
 
     public int[] getCharacters() {
