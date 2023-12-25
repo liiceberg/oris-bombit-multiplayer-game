@@ -7,9 +7,9 @@ import java.sql.SQLException;
 public class DatabaseConnection {
     private static Connection connection;
     private static final String DRIVER = "org.postgresql.Driver";
-    private static final String URL = "jdbc:postgresql://localhost:5432/bombit_game";
-    private static final String USER = "main";
-    private static final String PASSWORD = "qwerty12345";
+    private static final String URL = "jdbc:postgresql://ep-fragrant-union-a5lqrlgg.us-east-2.aws.neon.tech/bombit_game";
+    private static final String USER = "player";
+    private static final String PASSWORD = "WJU4RlwNZh5b";
 
     public static Connection getConnection() {
         if (connection == null) {
